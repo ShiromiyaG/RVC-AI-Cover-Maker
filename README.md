@@ -7,6 +7,7 @@ Performs the entire AI cover generation process
 
 ## Credits
 - [Audio Separator](https://github.com/karaokenerds/python-audio-separator) by [Andrew Beveridge](https://github.com/beveradb)
+- [RVC_CLI](https://github.com/blaise-tk/RVC_CLI) by [blaise-tk](https://github.com/blaise-tk)
 - [OrpheusDL](https://github.com/OrfiTeam/OrpheusDL) by [OrfiTeam](https://github.com/OrfiTeam)
 - [orpheusdl-deezer](https://git.ovosimpatico.com/ovosimpatico/orpheusdl-deezer) by [ovosimpatico](https://git.ovosimpatico.com/ovosimpatico)
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp)
