@@ -29,6 +29,20 @@ Separate parts version
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
+**Versão PT-BR**
+
+Processo completo
+
+<a target="_blank" href="https://github.com/ShiromiyaG/RVC-AI-Cover-Maker/blob/main/RVC_AI_Cover_Maker_(RVC_Project_version)_PT_BR.ipynb">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a>
+
+Versão com partes separadas
+
+<a target="_blank" href="https://github.com/ShiromiyaG/RVC-AI-Cover-Maker/blob/main/RVC_AI_Cover_Maker_(RVC_Project_separate_parts_version)_PT_BR.ipynb">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a>
+
 ## Features
 - Separates vocals and removes backing vocals and Echo/Reverb
 - Separate the instrumentals, keeping the backing vocals
