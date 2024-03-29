@@ -13,6 +13,11 @@ Version with separate parts (it doesn't have all the functions yet)
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
+## Planned Features
+- Finish the version with separate parts
+- Find a way to install dependencies faster (If you know how, please contact me)
+- Change the vocal ensemble model to BS Roformer (when a model is publicly available)
+
 ## Credits
 - [Audio Separator](https://github.com/karaokenerds/python-audio-separator) by [Andrew Beveridge](https://github.com/beveradb)
 - [RVC_CLI](https://github.com/blaise-tk/RVC_CLI) by [blaise-tk](https://github.com/blaise-tk)
