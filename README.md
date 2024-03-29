@@ -52,7 +52,6 @@ Versão com partes separadas
 
 ## Planned Features
 - Find a way to install dependencies faster (If you know how, please contact me)
-- Change the vocal ensemble model to BS Roformer (when a model is publicly available)
 - Maybe fix the mess of code I've made
 
 ## Credits
