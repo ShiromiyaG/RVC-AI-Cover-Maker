@@ -1,5 +1,6 @@
 # RVC AI Cover Maker
 Performs the entire AI cover generation process
+
 Full process version
 
 <a target="_blank" href="https://colab.research.google.com/github/ShiromiyaG/RVC-AI-Cover-Maker/blob/main/RVC_AI_Cover_Maker.ipynb">
