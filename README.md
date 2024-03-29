@@ -7,14 +7,20 @@ Full process version
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
-Version with separate parts (it doesn't have all the functions yet)
+Version with separate parts
 
 <a target="_blank" href="https://colab.research.google.com/github/ShiromiyaG/RVC-AI-Cover-Maker/blob/main/RVC_AI_Cover_Maker_(separate_parts_version).ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
+## Features
+- Separates vocals and removes backing vocals and Echo/Reverb
+- Separate the instrumentals, keeping the backing vocals
+- Download music from Deezer (Premium account required) and YouTube
+- Apply Reverb to vocals
+- Make Spectrogram ensemble
+
 ## Planned Features
-- Finish the version with separate parts
 - Find a way to install dependencies faster (If you know how, please contact me)
 - Change the vocal ensemble model to BS Roformer (when a model is publicly available)
 - Maybe fix the mess of code I've made
