@@ -1,15 +1,33 @@
 # RVC AI Cover Maker
 Performs the entire AI cover generation process
 
+## Links
+
+**RVC_CLI**
+
 Full process version
 
 <a target="_blank" href="https://colab.research.google.com/github/ShiromiyaG/RVC-AI-Cover-Maker/blob/main/RVC_AI_Cover_Maker.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
-Version with separate parts
+Separate parts version
 
 <a target="_blank" href="https://colab.research.google.com/github/ShiromiyaG/RVC-AI-Cover-Maker/blob/main/RVC_AI_Cover_Maker_(separate_parts_version).ipynb">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a>
+
+**RVC-Project**
+
+Full process version
+
+<a target="_blank" href="https://github.com/ShiromiyaG/RVC-AI-Cover-Maker/blob/main/RVC_AI_Cover_Maker_(RVC_Project_version).ipynb">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a>
+
+Separate parts version
+
+<a target="_blank" href="https://github.com/ShiromiyaG/RVC-AI-Cover-Maker/blob/main/RVC_AI_Cover_Maker_(RVC_Project_separate_parts_version).ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
@@ -34,3 +52,4 @@ Version with separate parts
 - [Ultimate Vocal Remover GUI](https://github.com/Anjok07/ultimatevocalremovergui) by [Anjok07](https://github.com/Anjok07)
 - [Music Source Separation Universal Training Code](https://github.com/ZFTurbo/Music-Source-Separation-Training) by [ZFTurbo](https://github.com/ZFTurbo)
 - [AICoverGen](https://github.com/SociallyIneptWeeb/AICoverGen) by [SociallyIneptWeeb](https://github.com/SociallyIneptWeeb)
+- [Retrieval-based-Voice-Conversion](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion) by [RVC-Project](https://github.com/RVC-Project)
