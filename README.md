@@ -7,7 +7,7 @@ Full process version
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
-Version with separate parts
+Version with separate parts (it doesn't have all the functions yet)
 
 <a target="_blank" href="https://colab.research.google.com/github/ShiromiyaG/RVC-AI-Cover-Maker/blob/main/RVC_AI_Cover_Maker_(separate_parts_version).ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
