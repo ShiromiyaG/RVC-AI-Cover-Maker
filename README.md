@@ -1,8 +1,6 @@
 # RVC AI Cover Maker
 Performs the entire AI cover generation process
 
-## Links
-
 **RVC_CLI**
 
 Full process version
