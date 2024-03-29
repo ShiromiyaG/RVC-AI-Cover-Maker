@@ -17,6 +17,7 @@ Version with separate parts (it doesn't have all the functions yet)
 - Finish the version with separate parts
 - Find a way to install dependencies faster (If you know how, please contact me)
 - Change the vocal ensemble model to BS Roformer (when a model is publicly available)
+- Maybe fix the mess of code I've made
 
 ## Credits
 - [Audio Separator](https://github.com/karaokenerds/python-audio-separator) by [Andrew Beveridge](https://github.com/beveradb)
