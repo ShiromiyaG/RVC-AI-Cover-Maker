@@ -29,3 +29,4 @@ Performs the entire AI cover generation process
 - [Music Source Separation Universal Training Code](https://github.com/ZFTurbo/Music-Source-Separation-Training) by [ZFTurbo](https://github.com/ZFTurbo)
 - [AICoverGen](https://github.com/SociallyIneptWeeb/AICoverGen) by [SociallyIneptWeeb](https://github.com/SociallyIneptWeeb)
 - [Retrieval-based-Voice-Conversion](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion) by [RVC-Project](https://github.com/RVC-Project)
+- [FullmatheusBallZ](https://www.youtube.com/@FullmatheusBallZ) for helping me test the colabs
