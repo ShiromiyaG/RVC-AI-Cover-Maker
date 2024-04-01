@@ -18,7 +18,7 @@ Performs the entire AI cover generation process
 - Make Spectrogram ensemble
 
 ## Planned Features
-- Find a way to install dependencies faster (If you know how, please contact me)
+- Find a way to install dependencies faster (If you know how, please open an issue or a pull request)
 - Maybe fix the mess of code I've made
 
 ## Credits
