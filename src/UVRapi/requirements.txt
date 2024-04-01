@@ -14,9 +14,7 @@ pyyaml
 submitit
 tqdm
 treetable
-soundfile>=0.10.3
 pytest
-audiofile
 pytorch_lightning
 onnx2pytorch
 ml_collections
