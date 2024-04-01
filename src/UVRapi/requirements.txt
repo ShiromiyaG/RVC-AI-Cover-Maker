@@ -15,6 +15,6 @@ submitit
 tqdm
 treetable
 pytest
-pytorch_lightning
+pytorch_lightning==2.2.1
 onnx2pytorch
 ml_collections
