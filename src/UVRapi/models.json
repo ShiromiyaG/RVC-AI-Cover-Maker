@@ -29,6 +29,11 @@
             "model_path":[
                 "https://github.com/TRvlvr/model_repo/releases/download/all_public_uvr_models/UVR-MDX-NET-Inst_HQ_4.onnx"
             ]
+        },
+        "Reverb_HQ":{
+            "model_path":[
+                "https://github.com/TRvlvr/model_repo/releases/download/all_public_uvr_models/Reverb_HQ_By_FoxJoy.onnx"
+            ]
         }
     },
     "mdxc":{
