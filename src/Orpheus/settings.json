@@ -1,0 +1,89 @@
+{
+    "global": {
+        "general": {
+            "download_path": "/content/musicas/arquivos-originais/",
+            "download_quality": "hifi",
+            "search_limit": 10
+        },
+        "artist_downloading": {
+            "return_credited_albums": true,
+            "separate_tracks_skip_downloaded": true
+        },
+        "formatting": {
+            "album_format": "{artist} - {name}{explicit}",
+            "playlist_format": "{name}{explicit}",
+            "track_filename_format": "{track_number}. {name}",
+            "single_full_path_format": "{track_number}. {name}",
+            "enable_zfill": true,
+            "force_album_format": false
+        },
+        "codecs": {
+            "proprietary_codecs": false,
+            "spatial_codecs": true
+        },
+        "module_defaults": {
+            "lyrics": "default",
+            "covers": "default",
+            "credits": "default"
+        },
+        "lyrics": {
+            "embed_lyrics": false,
+            "embed_synced_lyrics": false,
+            "save_synced_lyrics": false
+        },
+        "covers": {
+            "embed_cover": true,
+            "main_compression": "high",
+            "main_resolution": 1400,
+            "save_external": false,
+            "external_format": "png",
+            "external_compression": "low",
+            "external_resolution": 3000,
+            "save_animated_cover": true
+        },
+        "playlist": {
+            "save_m3u": true,
+            "paths_m3u": "absolute",
+            "extended_m3u": true
+        },
+        "advanced": {
+            "advanced_login_system": false,
+            "codec_conversions": {
+                "alac": "flac",
+                "wav": "flac"
+            },
+            "conversion_flags": {
+                "flac": {
+                    "compression_level": "5"
+                }
+            },
+            "conversion_keep_original": false,
+            "cover_variance_threshold": 8,
+            "debug_mode": false,
+            "disable_subscription_checks": false,
+            "enable_undesirable_conversions": false,
+            "ignore_existing_files": false,
+            "ignore_different_artists": true
+        }
+    },
+    "extensions": {},
+    "modules": {
+        "qobuz": {
+            "app_id": "",
+            "app_secret": "",
+            "quality_format": "{sample_rate}kHz {bit_depth}bit",
+            "username": "",
+            "password": ""
+        },
+        "deezer": {
+            "client_id": "447462",
+            "client_secret": "a83bf7f38ad2f137e444727cfc3775cf",
+            "bf_secret": "",
+            "track_url_key": "",
+            "prefer_mhm1": false,
+            "arl": "",
+            "username": "DO NOT MODIFY",
+            "password": "DO NOT MODIFY"
+        }
+    }
+}
