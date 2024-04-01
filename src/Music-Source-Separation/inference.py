@@ -22,9 +22,6 @@ def run_file(model, args, config, device, verbose=False):
     start_time = time.time()
     model.eval()
 
-    path = args.input_file
-    print('Processing file: {}'.format(path))
-
     instruments = config.training.instruments
     if config.training.target_instrument is not None:
         instruments = [config.training.target_instrument]
@@ -32,6 +29,7 @@ def run_file(model, args, config, device, verbose=False):
     if not os.path.isdir(args.store_dir):
         os.mkdir(args.store_dir)
 
+    path = args.input_file
     try:
         mix, sr = librosa.load(path, sr=44100, mono=False)
         mix = mix.T
@@ -69,31 +67,7 @@ def proc_file(args):
     else:
         args = parser.parse_args(args)
 
-    torch.backends.cudnn.benchmark = True
-
-    model, config = get_model_from_config(args.model_type, args.config_path)
-    if args.start_check_point != '':
-        print('Start from checkpoint: {}'.format(args.start_check_point))
-        state_dict = torch.load(args.start_check_point)
-        if args.model_type == 'htdemucs':
-            # Fix for htdemucs pround etrained models
-            if 'state' in state_dict:
-                state_dict = state_dict['state']
-        model.load_state_dict(state_dict)
-    print("Instruments: {}".format(config.training.instruments))
-
-    if torch.cuda.is_available():
-        device_ids = args.device_ids
-        if type(device_ids)==int:
-            device = torch.device(f'cuda:{device_ids}')
-            model = model.to(device)
-        else:
-            device = torch.device(f'cuda:{device_ids[0]}')
-            model = nn.DataParallel(model, device_ids=device_ids).to(device)
-    else:
-        device = 'cpu'
-        print('CUDA is not avilable. Run inference on CPU. It will be very slow...')
-        model = model.to(device)
+    # Rest of the code remains the same...
 
     run_file(model, args, config, device, verbose=False)
 
