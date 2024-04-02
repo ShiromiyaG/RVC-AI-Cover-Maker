@@ -22,14 +22,14 @@ Performs the entire AI cover generation process
 - Maybe fix the mess of code I've made
 
 ## Credits
+- [Ultimate Vocal Remover API](https://github.com/NextAudioGen/ultimatevocalremover_api) by [NextAudioGen](https://github.com/NextAudioGen)
 - [Audio Separator](https://github.com/karaokenerds/python-audio-separator) by [Andrew Beveridge](https://github.com/beveradb)
 - [RVC_CLI](https://github.com/blaise-tk/RVC_CLI) by [blaise-tk](https://github.com/blaise-tk)
+- [Retrieval-based-Voice-Conversion](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion) by [RVC-Project](https://github.com/RVC-Project)
 - [OrpheusDL](https://github.com/OrfiTeam/OrpheusDL) by [OrfiTeam](https://github.com/OrfiTeam)
 - [orpheusdl-deezer](https://git.ovosimpatico.com/ovosimpatico/orpheusdl-deezer) by [ovosimpatico](https://git.ovosimpatico.com/ovosimpatico)
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp)
 - [Ultimate Vocal Remover GUI](https://github.com/Anjok07/ultimatevocalremovergui) by [Anjok07](https://github.com/Anjok07)
 - [Music Source Separation Universal Training Code](https://github.com/ZFTurbo/Music-Source-Separation-Training) by [ZFTurbo](https://github.com/ZFTurbo)
 - [AICoverGen](https://github.com/SociallyIneptWeeb/AICoverGen) by [SociallyIneptWeeb](https://github.com/SociallyIneptWeeb)
-- [Retrieval-based-Voice-Conversion](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion) by [RVC-Project](https://github.com/RVC-Project)
-- [Ultimate Vocal Remover API](https://github.com/NextAudioGen/ultimatevocalremover_api) by [NextAudioGen](https://github.com/NextAudioGen)
 - [FullmatheusBallZ](https://www.youtube.com/@FullmatheusBallZ) for helping me test the colabs
