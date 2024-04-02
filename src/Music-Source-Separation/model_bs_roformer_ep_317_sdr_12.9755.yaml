@@ -1,7 +1,7 @@
 audio:
   chunk_size: 352800
   dim_f: 1024
-  dim_t: 801 # don't work (use in model)
+  dim_t: 901 # don't work (use in model)
   hop_length: 441 # don't work (use in model)
   n_fft: 2048
   num_channels: 2
