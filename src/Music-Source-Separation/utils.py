@@ -7,13 +7,12 @@ import torch
 import torch.nn as nn
 import yaml
 from ml_collections import ConfigDict
-from omegaconf import OmegaConf
 
 
 def get_model_from_config(model_type, config_path):
     with open(config_path) as f:
         if model_type == 'htdemucs':
-            config = OmegaConf.load(config_path)
+            pass
         else:
             config = ConfigDict(yaml.load(f, Loader=yaml.FullLoader))
 
