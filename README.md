@@ -5,7 +5,7 @@ Performs the entire AI cover generation process
 
 | **English Version** | **Versão PT-BR** |
 |:---:|:---:|
-| Full process version <br> <a target="_blank" href="https://colab.research.google.com/github/ShiromiyaG/RVC-AI-Cover-Maker/blob/main/RVC_AI_Cover_Maker.ipynb"> <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/> </a> <br> Separate parts version <br> <a target="_blank" href="https://colab.research.google.com/github/ShiromiyaG/RVC-AI-Cover-Maker/blob/main/RVC_AI_Cover_Maker_(separate_parts_version).ipynb"> <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/> </a> | Processo completo <br> <a target="_blank" href="https://colab.research.google.com/github/ShiromiyaG/RVC-AI-Cover-Maker/blob/main/RVC_AI_Cover_Maker_PT_BR.ipynb"> <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/> </a> <br> Versão com partes separadas <br> <a target="_blank" href="https://colab.research.google.com/github/ShiromiyaG/RVC-AI-Cover-Maker/blob/main/RVC_AI_Cover_Maker_(separate_parts_version)_PT_BR.ipynb"> <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/> </a> |
+| Full process version <br> <a target="_blank" href="https://colab.research.google.com/github/ShiromiyaG/RVC-AI-Cover-Maker/blob/v2/RVC_AI_Cover_Maker.ipynb"> <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/> </a> <br> Separate parts version <br> <a target="_blank" href="https://colab.research.google.com/github/ShiromiyaG/RVC-AI-Cover-Maker/blob/v2/RVC_AI_Cover_Maker_(separate_parts_version).ipynb"> <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/> </a> | Processo completo <br> <a target="_blank" href="https://colab.research.google.com/github/ShiromiyaG/RVC-AI-Cover-Maker/blob/v2/RVC_AI_Cover_Maker_PT_BR.ipynb"> <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/> </a> <br> Versão com partes separadas <br> <a target="_blank" href="https://colab.research.google.com/github/ShiromiyaG/RVC-AI-Cover-Maker/blob/v2/RVC_AI_Cover_Maker_(separate_parts_version)_PT_BR.ipynb"> <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/> </a> |
 </div>
 
 ## Features
@@ -14,10 +14,6 @@ Performs the entire AI cover generation process
 - Download music from Deezer (Premium account required) and YouTube
 - Apply Reverb to vocals
 - Make Spectrogram ensemble
-
-## Planned Features
-- Find a way to install dependencies faster (If you know how, please open an issue or a pull request)
-- Maybe fix the mess of code I've made
 
 ## Credits
 - [Ultimate Vocal Remover API](https://github.com/NextAudioGen/ultimatevocalremover_api) by [NextAudioGen](https://github.com/NextAudioGen)
