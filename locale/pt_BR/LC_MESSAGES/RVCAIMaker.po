@@ -1,0 +1,93 @@
+# Portuguese translations for PACKAGE package.
+# Copyright (C) 2024 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# <EMAIL@ADDRESS>, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-04-08 01:32-0300\n"
+"PO-Revision-Date: 2024-04-07 23:56-0300\n"
+"Last-Translator: <EMAIL@ADDRESS>\n"
+"Language-Team: Brazilian Portuguese\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CP1252\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: inference.py:72
+msgid "Downloading Youtube music..."
+msgstr "Fazendo download da música do Youtube..."
+
+#: inference.py:75
+msgid "Download of Youtube music complete!"
+msgstr "Download da música do Youtube completo!"
+
+#: inference.py:91
+msgid "Downloading Deezer music..."
+msgstr "Fazendo download da música do Deezer..."
+
+#: inference.py:93
+msgid "Download of Deezer complete!"
+msgstr "Download da música do Deezer completo!"
+
+#: inference.py:104
+msgid "Separating vocals..."
+msgstr "Separando vocais..."
+
+#: inference.py:123
+#, python-brace-format
+msgid "{basename} processing with MDX23C-8KFFT-InstVoc_HQ is over!"
+msgstr "Processamento de {basename} com MDX23C-8KFFT-InstVoc_HQ acabou!"
+
+#: inference.py:136
+#, python-brace-format
+msgid "{basename} processing with BSRoformer is over!"
+msgstr "Processamento de {basename} com BSRoformer acabou!"
+
+#: inference.py:157
+#, python-brace-format
+msgid "{basename} processing with karokee_4band_v2_sn is over!"
+msgstr "Processamento de {basename} com karokee_4band_v2_sn acabou!"
+
+#: inference.py:164
+#, python-brace-format
+msgid "{basename} processing with Reverb HQ is over!"
+msgstr "Processamento de {basename} com Reverb HQ acabou!"
+
+#: inference.py:165
+msgid "Vocal processing completed."
+msgstr "Processamento dos vocais concluído!"
+
+#: inference.py:166
+msgid "Separation complete!"
+msgstr "Separação completa!"
+
+#: inference.py:178
+msgid "Separating instrumentals..."
+msgstr "Separando instrumentais..."
+
+#: inference.py:201 inference.py:210 inference.py:239 inference.py:251
+#: inference.py:282 inference.py:293
+#, python-brace-format
+msgid "{basename} processing with {model_name_without_ext} is over!"
+msgstr "Processamento de {basename} com {model_name_without_ext} acabou!"
+
+#: inference.py:266
+msgid "Processing of the first Ensemble is over!"
+msgstr "Processamento do primeiro Ensemble acabou!"
+
+#: inference.py:308
+msgid "Processing of the second Ensemble is over!"
+msgstr "Processamento do Segundo Ensemble acabou!"
+
+#: inference.py:310
+msgid "Instrumental processing completed."
+msgstr "Processamento dos instrumentais concluído."
+
+#: inference.py:384
+#, fuzzy
+msgid "RVC AI processing complete!"
+msgstr "Processamento dos vocais concluído!"

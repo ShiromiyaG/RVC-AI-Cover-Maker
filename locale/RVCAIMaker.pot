@@ -1,0 +1,92 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-04-08 01:32-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: inference.py:72
+msgid "Downloading Youtube music..."
+msgstr ""
+
+#: inference.py:75
+msgid "Download of Youtube music complete!"
+msgstr ""
+
+#: inference.py:91
+msgid "Downloading Deezer music..."
+msgstr ""
+
+#: inference.py:93
+msgid "Download of Deezer complete!"
+msgstr ""
+
+#: inference.py:104
+msgid "Separating vocals..."
+msgstr ""
+
+#: inference.py:123
+#, python-brace-format
+msgid "{basename} processing with MDX23C-8KFFT-InstVoc_HQ is over!"
+msgstr ""
+
+#: inference.py:136
+#, python-brace-format
+msgid "{basename} processing with BSRoformer is over!"
+msgstr ""
+
+#: inference.py:157
+#, python-brace-format
+msgid "{basename} processing with karokee_4band_v2_sn is over!"
+msgstr ""
+
+#: inference.py:164
+#, python-brace-format
+msgid "{basename} processing with Reverb HQ is over!"
+msgstr ""
+
+#: inference.py:165
+msgid "Vocal processing completed."
+msgstr ""
+
+#: inference.py:166
+msgid "Separation complete!"
+msgstr ""
+
+#: inference.py:178
+msgid "Separating instrumentals..."
+msgstr ""
+
+#: inference.py:201 inference.py:210 inference.py:239 inference.py:251
+#: inference.py:282 inference.py:293
+#, python-brace-format
+msgid "{basename} processing with {model_name_without_ext} is over!"
+msgstr ""
+
+#: inference.py:266
+msgid "Processing of the first Ensemble is over!"
+msgstr ""
+
+#: inference.py:308
+msgid "Processing of the second Ensemble is over!"
+msgstr ""
+
+#: inference.py:310
+msgid "Instrumental processing completed."
+msgstr ""
+
+#: inference.py:384
+msgid "RVC AI processing complete!"
+msgstr ""
