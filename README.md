@@ -1,6 +1,6 @@
 <div align="center">
   
-# ![RVC AI Cover Maker](https://github.com/ShiromiyaG/RVC-AI-Cover-Maker/assets/86894155/f649f7d9-4529-4f50-82c1-6ef85b1147d6)
+# ![RVC AI Cover Maker-min](https://github.com/ShiromiyaG/RVC-AI-Cover-Maker/assets/86894155/16398af2-6c38-401d-8906-3efd688b48b6)
 
 Performs the entire AI cover generation process
 
