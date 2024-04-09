@@ -6,11 +6,11 @@ import os
 import sys
 from  glob import glob
 from pydub import AudioSegment
-from RVC_CLI.main import run_infer_script
-from Music_Source_Separation_Training.inference import proc_file
-from Utils.spectograma import process_spectrogram
-from Utils.reverbpedalboard import main as reverbpedalboard
-from Utils.mix import main as mix
+from rvccli import run_infer_script
+from musicsouceseparationtraining import proc_file
+from shiromiyautils import process_spectrogram
+from shiromiyautils import reverbpedalboard_main
+from shiromiyautils import mix_main
 import torch
 import audiofile as af
 from uvr import models
@@ -33,7 +33,7 @@ def get_last_modified_file(directory, filter=''):
       return max(arquivos, key=os.path.getmtime)
   else:
       return None
-  
+
 def find_files(directory, extensions):
   files = glob(f'{directory}/**/*{extensions}', recursive=True)
   return files[0]
@@ -45,7 +45,7 @@ def suppress_output():
         old_stderr = sys.stderr
         sys.stdout = devnull
         sys.stderr = devnull
-        try:  
+        try:
             yield
         finally:
             sys.stdout = old_stdout
@@ -56,7 +56,7 @@ def cli():
     pass
 
 @click.command("download_yt")
-@click.argument('--link')
+@click.option('--link')
 def download_yt(link):
     options = {
         'format': 'bestaudio/best',
@@ -68,18 +68,19 @@ def download_yt(link):
         'outtmpl': '/content/musicas/arquivos-originais/%(title)s.%(ext)s',
         'quiet': True
     }
+    print(_("Downloading Youtube music..."))
     with suppress_output():
-        print(_("Downloading Youtube music..."))
         with YoutubeDL(options) as ydl:
             ydl.download([link])
-        print(_("Download of Youtube music complete!"))
- 
+    print(_("Download of Youtube music complete!"))
+
 @click.command("download_deezer")
-@click.argument('--link')
-@click.argument('--bf_secret')
-@click.argument('--track_url_key')
-@click.argument('--arl')
+@click.option('--link')
+@click.option('--bf_secret')
+@click.option('--track_url_key')
+@click.option('--arl')
 def download_deezer(link, bf_secret, track_url_key, arl):
+    print(_("Downloading Deezer music..."))
     with suppress_output():
         with open('/content/OrpheusDL/config/settings.json', 'r') as file:
             data = json.load(file)
@@ -88,15 +89,14 @@ def download_deezer(link, bf_secret, track_url_key, arl):
         data['modules']['deezer']['arl'] = arl
         with open('/content/OrpheusDL/config/settings.json', 'w') as file:
             json.dump(data, file, indent=4)
-        print(_("Downloading Deezer music..."))
         subprocess.run(["python", "OrpheusDL/orpheus.py", link])
-        print(_("Download of Deezer complete!"))
-   
+    print(_("Download of Deezer complete!"))
+
 @click.command("remove_backing_vocals_and_reverb")
-@click.argument('--input_file') 
-@click.argument('--no_back_folder') 
-@click.argument('--output_folder') 
-@click.argument('--device') 
+@click.option('--input_file')
+@click.option('--no_back_folder')
+@click.option('--output_folder')
+@click.option('--device')
 def remove_backing_vocals_and_reverb(input_file, no_back_folder, output_folder, device):
     basename = os.path.basename(input_file).split(".")[0]
     # Conevert mp3 to flac
@@ -107,7 +107,7 @@ def remove_backing_vocals_and_reverb(input_file, no_back_folder, output_folder, 
             audio.export(f"{flac_filename}", format="flac")
             os.remove(input_file)
             input_file = flac_filename
-    
+
     Vr = models.VrNetwork(name="karokee_4band_v2_sn", other_metadata={'normaliz': False, 'aggressiveness': 0.05,'window_size': 320,'batch_size': 8,'is_tta': True},device=device, logger=None)
     with suppress_output():
         res = Vr(input_file)
@@ -130,13 +130,13 @@ def remove_backing_vocals_and_reverb(input_file, no_back_folder, output_folder, 
     return [output for output in output_folder if "Reverb_HQ" in output]
 
 @click.command("separate_vocals")
-@click.argument('--input_file') 
-@click.argument('--vocal_ensemble')
-@click.argument('--algorithm_ensemble_vocals')
-@click.argument('--no_inst_folder') 
-@click.argument('--no_back_folder')
-@click.argument('--output_folder') 
-@click.argument('--device')
+@click.option('--input_file')
+@click.option('--vocal_ensemble')
+@click.option('--algorithm_ensemble_vocals')
+@click.option('--no_inst_folder')
+@click.option('--no_back_folder')
+@click.option('--output_folder')
+@click.option('--device')
 def separate_vocals(input_file, Vocals_Ensemble, algorithm_ensemble_vocals, no_inst_folder, no_back_folder, output_folder, device):
     print(_("Separating vocals..."))
     basename = os.path.basename(input_file).split(".")[0]
@@ -152,8 +152,8 @@ def separate_vocals(input_file, Vocals_Ensemble, algorithm_ensemble_vocals, no_i
     MDX23C_args = [
         "--model_type", "mdx23c",
         "--config_path", "Music-Source-Separation-Training/models/model_2_stem_full_band_8k.yaml",
-        "--start_check_point", "Music-Source-Separation-Training/models/MDX23C-8KFFT-InstVoc_HQ.ckpt", 
-        "--input_file", f"{input_file}", 
+        "--start_check_point", "Music-Source-Separation-Training/models/MDX23C-8KFFT-InstVoc_HQ.ckpt",
+        "--input_file", f"{input_file}",
         "--store_dir", f"{no_inst_folder}",
     ]
     with suppress_output():
@@ -166,8 +166,8 @@ def separate_vocals(input_file, Vocals_Ensemble, algorithm_ensemble_vocals, no_i
         BSRoformer_args = [
             "--model_type", "bs_roformer",
             "--config_path", "Music-Source-Separation-Training/models/model_bs_roformer_ep_317_sdr_12.9755.yaml",
-            "--start_check_point", "Music-Source-Separation-Training/models/model_bs_roformer_ep_317_sdr_12.9755.ckpt", 
-            "--input_file", f"{input_file}", 
+            "--start_check_point", "Music-Source-Separation-Training/models/model_bs_roformer_ep_317_sdr_12.9755.ckpt",
+            "--input_file", f"{input_file}",
             "--store_dir", f"{no_inst_folder}",
         ]
         with suppress_output():
@@ -206,15 +206,15 @@ def separate_vocals(input_file, Vocals_Ensemble, algorithm_ensemble_vocals, no_i
     print(_("Vocal processing completed."))
     print(_("Separation complete!"))
     return [output for output in output_folder if "Reverb_HQ" in output]
-    
+
 @click.command("separate_instrumentals")
-@click.argument('--input_file') 
-@click.argument('--Instrumental_Ensemble')
-@click.argument('--algorithm_ensemble_inst') 
-@click.argument('--stage1_dir')
-@click.argument('--stage2_dir')
-@click.argument('--final_output_dir')  
-@click.argument('--device')
+@click.option('--input_file')
+@click.option('--Instrumental_Ensemble')
+@click.option('--algorithm_ensemble_inst')
+@click.option('--stage1_dir')
+@click.option('--stage2_dir')
+@click.option('--final_output_dir')
+@click.option('--device')
 def separate_instrumentals(input_file, Instrumental_Ensemble, algorithm_ensemble_inst, stage1_dir, stage2_dir, final_output_dir, device):
     print(_("Separating instrumentals..."))
     basename = os.path.basename(input_file).split(".")[0]
@@ -290,7 +290,7 @@ def separate_instrumentals(input_file, Instrumental_Ensemble, algorithm_ensemble
         processed_models.append(model_name)
         final_output_path = os.path.join(stage1_dir, f"{basename}_{model_name_without_ext}.flac")
         print(_(f"{basename} processing with {model_name_without_ext} is over!"))
-    
+
     if Instrumental_Ensemble == True:
         all_files = os.listdir(stage1_dir)
         pass1_outputs_filtered = [os.path.join(stage1_dir, output) for output in all_files if "Instrumental" in output]
@@ -347,31 +347,31 @@ def separate_instrumentals(input_file, Instrumental_Ensemble, algorithm_ensemble
         ]
         process_spectrogram(Third_Ensemble_args)
         print(_("Processing of the second Ensemble is over!"))
-    
+
     print(_("Instrumental processing completed."))
     if Instrumental_Ensemble == True:
         return [output for output in final_output_path if "instrumental" in output]
     else:
         return [output for output in stage1_dir if "instrumental" in output]
-    
+
 @click.command("rvc_ai")
-@click.argument('--input_path') 
-@click.argument('--output_path') 
-@click.argument('--rvc_model_name') 
-@click.argument('--model_destination_folder')
-@click.argument('--rvc_model_link')
-@click.argument('--pitch')
-@click.argument('--filter_radius')  
-@click.argument('--index_rate')
-@click.argument('--hop_length')
-@click.argument('--rms_mix_rate')
-@click.argument('--protect')
-@click.argument('--autotune')
-@click.argument('--f0method')
-@click.argument('--split_audio')
-@click.argument('--clean_audio')
-@click.argument('--clean_strength')
-@click.argument('--export_format')
+@click.option('--input_path')
+@click.option('--output_path')
+@click.option('--rvc_model_name')
+@click.option('--model_destination_folder')
+@click.option('--rvc_model_link')
+@click.option('--pitch')
+@click.option('--filter_radius')
+@click.option('--index_rate')
+@click.option('--hop_length')
+@click.option('--rms_mix_rate')
+@click.option('--protect')
+@click.option('--autotune')
+@click.option('--f0method')
+@click.option('--split_audio')
+@click.option('--clean_audio')
+@click.option('--clean_strength')
+@click.option('--export_format')
 def rvc_ai(input_path, output_path, rvc_model_name, model_destination_folder, rvc_model_link, pitch, filter_radius, index_rate, hop_length, rms_mix_rate, protect, autotune, f0method, split_audio, clean_audio, clean_strength, export_format):
     print("Downloading model...")
     filename = rvc_model_name
@@ -424,13 +424,13 @@ def rvc_ai(input_path, output_path, rvc_model_name, model_destination_folder, rv
     return output_path.replace(".flac", f".{export_format.lower()}")
 
 @click.command("reverb")
-@click.argument('--audio_path') 
-@click.argument('--reverb_size') 
-@click.argument('--reverb_wetness') 
-@click.argument('--reverb_dryness') 
-@click.argument('--reverb_damping') 
-@click.argument('--output_format') 
-@click.argument('--output_path')
+@click.option('--audio_path')
+@click.option('--reverb_size')
+@click.option('--reverb_wetness')
+@click.option('--reverb_dryness')
+@click.option('--reverb_damping')
+@click.option('--output_format')
+@click.option('--output_path')
 def reverb(audio_path, reverb_size, reverb_wetness, reverb_dryness, reverb_damping, output_format, output_path):
     reverb_args = [
         "--audio_path", f"{audio_path}",
@@ -442,12 +442,12 @@ def reverb(audio_path, reverb_size, reverb_wetness, reverb_dryness, reverb_dampi
         "--output_path", f"{output_path}"
     ]
     reverbpedalboard(reverb_args)
-    return 
-    
+    return
+
 @click.command("remove_noise")
-@click.argument('--audio_path')
-@click.argument('--noise_db_limit')
-@click.argument('--output_path')
+@click.option('--audio_path')
+@click.option('--noise_db_limit')
+@click.option('--output_path')
 def remove_noise(noise_db_limit, audio_path, output_path):
     audio = AudioSegment.from_file(audio_path)
     db_limit = noise_db_limit
@@ -457,15 +457,15 @@ def remove_noise(noise_db_limit, audio_path, output_path):
         chunk = audio[i:i+chunk_length]
         if chunk.dBFS > db_limit:
             silenced_audio = silenced_audio.overlay(chunk, position=i)
-    silenced_audio.export(output_path, format="wav") 
+    silenced_audio.export(output_path, format="wav")
     return output_path
 
 @click.command("mix_audio")
-@click.argument('--audio_paths')
-@click.argument('--output_path')
-@click.argument('--main_gain')
-@click.argument('--inst_gain') 
-@click.argument('--output_format')
+@click.option('--audio_paths')
+@click.option('--output_path')
+@click.option('--main_gain')
+@click.option('--inst_gain')
+@click.option('--output_format')
 def mix_audio(audio_paths, output_path, main_gain, inst_gain, output_format):
     mix_args = [
         "--audio_paths", f"{audio_paths}",
@@ -475,11 +475,11 @@ def mix_audio(audio_paths, output_path, main_gain, inst_gain, output_format):
         "--output_format", f"{output_format}"
     ]
     mix(mix_args)
-    
+
 @click.command("ensemble")
-@click.argument('--input_folder')
-@click.argument('--algorithm_ensemble')
-@click.argument('--output_path')
+@click.option('--input_folder')
+@click.option('--algorithm_ensemble')
+@click.option('--output_path')
 def ensemble(input_folder, algorithm_ensemble, output_path):
     files = [file for file in os.listdir(input_folder) if os.path.isfile(os.path.join(input_folder, file))]
     Ensemble_args = [
@@ -502,6 +502,6 @@ def main():
     cli.add_command(mix_audio)
     cli.add_command(ensemble)
     cli()
-    
+
 if __name__ == "__main__":
     main()
