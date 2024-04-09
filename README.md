@@ -1,6 +1,6 @@
 <div align="center">
   
-# <a href="_blank" target="https://github.com/ShiromiyaG/RVC-AI-Cover-Maker"><img src="https://github.com/ShiromiyaG/RVC-AI-Cover-Maker/blob/v2/assets/RVC%20AI%20Cover%20Maker.png" alt="RVCAICoverMaker"></a>
+# <a href="https://github.com/ShiromiyaG/RVC-AI-Cover-Maker" target="_blank"><img src="https://github.com/ShiromiyaG/RVC-AI-Cover-Maker/blob/v2/assets/RVC%20AI%20Cover%20Maker.png" alt="RVCAICoverMaker"></a>
 Performs the entire AI cover generation process
 
 | **English Version** | **Versão PT-BR** |
