@@ -52,7 +52,7 @@ def suppress_output(supress=True):
                 sys.stdout = old_stdout
                 sys.stderr = old_stderr
     else:
-        pass
+        yield
 
 @click.group()
 def cli():
