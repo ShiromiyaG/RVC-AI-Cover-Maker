@@ -137,7 +137,7 @@ def remove_backing_vocals_and_reverb(input_file, no_back_folder, output_folder, 
 @click.option('--no_back_folder')
 @click.option('--output_folder')
 @click.option('--device')
-def separate_vocals(input_file, Vocals_Ensemble, algorithm_ensemble_vocals, no_inst_folder, no_back_folder, output_folder, device):
+def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_inst_folder, no_back_folder, output_folder, device):
     print(_("Separating vocals..."))
     basename = os.path.basename(input_file).split(".")[0]
     # Conevert mp3 to flac
@@ -160,7 +160,7 @@ def separate_vocals(input_file, Vocals_Ensemble, algorithm_ensemble_vocals, no_i
         proc_file(MDX23C_args)
     print(_(f"{basename} processing with MDX23C-8KFFT-InstVoc_HQ is over!"))
     # Ensemble Vocals
-    if Vocals_Ensemble:
+    if vocal_ensemble:
         lista = []
         lista.append(get_last_modified_file(no_inst_folder, "Vocals"))
         BSRoformer_args = [
@@ -209,13 +209,13 @@ def separate_vocals(input_file, Vocals_Ensemble, algorithm_ensemble_vocals, no_i
 
 @click.command("separate_instrumentals")
 @click.option('--input_file')
-@click.option('--Instrumental_Ensemble')
+@click.option('--instrumental_ensemble')
 @click.option('--algorithm_ensemble_inst')
 @click.option('--stage1_dir')
 @click.option('--stage2_dir')
 @click.option('--final_output_dir')
 @click.option('--device')
-def separate_instrumentals(input_file, Instrumental_Ensemble, algorithm_ensemble_inst, stage1_dir, stage2_dir, final_output_dir, device):
+def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble_inst, stage1_dir, stage2_dir, final_output_dir, device):
     print(_("Separating instrumentals..."))
     basename = os.path.basename(input_file).split(".")[0]
     # Pass 1
@@ -227,7 +227,7 @@ def separate_instrumentals(input_file, Instrumental_Ensemble, algorithm_ensemble
             audio.export(f"{flac_filename}", format="flac")
             os.remove(input_file)
             input_file = flac_filename
-    if Instrumental_Ensemble:
+    if instrumental_ensemble:
         processed_models = []
         models_names = ["5_HP-Karaoke-UVR.pth", "UVR-MDX-NET-Inst_HQ_4.onnx", "htdemucs.yaml"]
         for model_name in models_names:
@@ -291,7 +291,7 @@ def separate_instrumentals(input_file, Instrumental_Ensemble, algorithm_ensemble
         final_output_path = os.path.join(stage1_dir, f"{basename}_{model_name_without_ext}.flac")
         print(_(f"{basename} processing with {model_name_without_ext} is over!"))
 
-    if Instrumental_Ensemble == True:
+    if instrumental_ensemble == True:
         all_files = os.listdir(stage1_dir)
         pass1_outputs_filtered = [os.path.join(stage1_dir, output) for output in all_files if "Instrumental" in output]
         # Second Ensemble
@@ -349,7 +349,7 @@ def separate_instrumentals(input_file, Instrumental_Ensemble, algorithm_ensemble
         print(_("Processing of the second Ensemble is over!"))
 
     print(_("Instrumental processing completed."))
-    if Instrumental_Ensemble == True:
+    if instrumental_ensemble == True:
         return [output for output in final_output_path if "instrumental" in output]
     else:
         return [output for output in stage1_dir if "instrumental" in output]
@@ -441,7 +441,7 @@ def reverb(audio_path, reverb_size, reverb_wetness, reverb_dryness, reverb_dampi
         "--output-format", f"{output_format}",
         "--output_path", f"{output_path}"
     ]
-    reverbpedalboard(reverb_args)
+    reverbpedalboard_main(reverb_args)
     return
 
 @click.command("remove_noise")
@@ -474,7 +474,7 @@ def mix_audio(audio_paths, output_path, main_gain, inst_gain, output_format):
         "--inst_gain", f"{inst_gain}",
         "--output_format", f"{output_format}"
     ]
-    mix(mix_args)
+    mix_main(mix_args)
 
 @click.command("ensemble")
 @click.option('--input_folder')
