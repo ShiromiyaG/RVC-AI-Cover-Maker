@@ -9,8 +9,8 @@ from pydub import AudioSegment
 from rvccli import run_infer_script
 from musicsouceseparationtraining import proc_file
 from shiromiyautils import process_spectrogram
-from shiromiyautils import reverbpedalboard_main
-from shiromiyautils import mix_main
+from shiromiyautils import add_audio_effects
+from shiromiyautils import combine_audio
 import torch
 import audiofile as af
 from uvr import models
@@ -161,8 +161,8 @@ def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_in
         # MDX23C-8KFFT-InstVoc_HQ
         MDX23C_args = [
             "--model_type", "mdx23c",
-            "--config_path", "Music-Source-Separation-Training/models/model_2_stem_full_band_8k.yaml",
-            "--start_check_point", "Music-Source-Separation-Training/models/MDX23C-8KFFT-InstVoc_HQ.ckpt",
+            "--config_path", "Music_Source_Separation_Training/models/model_2_stem_full_band_8k.yaml",
+            "--start_check_point", "Music_Source_Separation_Training/models/MDX23C-8KFFT-InstVoc_HQ.ckpt",
             "--input_file", f"{input_file}",
             "--store_dir", f"{no_inst_folder}",
         ]
@@ -247,7 +247,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
             if model_name == "5_HP-Karaoke-UVR.pth":
                 with suppress_output(supress):
                     model_name_without_ext = model_name.split('.')[0]
-                    Vr = models.VrNetwork(name="5_HP-Karaoke-UVR.pth", other_metadata={'normaliz': False, 'aggressiveness': 0.05,'window_size': 320,'batch_size': 8,'is_tta': True},device=device, logger=None)
+                    Vr = models.VrNetwork(name="5_HP-Karaoke-UVR", other_metadata={'normaliz': False, 'aggressiveness': 0.05,'window_size': 320,'batch_size': 8,'is_tta': True},device=device, logger=None)
                     res = Vr(input_file)
                     instrumentals = res["instrumentals"]
                     af.write(f"{stage1_dir}/{basename}_{model_name_without_ext}.wav", instrumentals, Vr.sample_rate)
@@ -257,7 +257,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
             if model_name == "UVR-MDX-NET-Inst_HQ_4.onnx":
                 with suppress_output(supress):
                     model_name_without_ext = model_name.split('.')[0]
-                    MDX = models.MDX(name="UVR-MDX-NET-Inst_HQ_4.onnx", other_metadata={'segment_size': 256,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
+                    MDX = models.MDX(name="UVR-MDX-NET-Inst_HQ_4", other_metadata={'segment_size': 256,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
                     res = MDX(input_file)
                     instrumentals = res["instrumentals"]
                     af.write(f"{stage1_dir}/{basename}_{model_name_without_ext}.wav", instrumentals, MDX.sample_rate)
@@ -393,7 +393,8 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
 @click.option('--clean_audio')
 @click.option('--clean_strength')
 @click.option('--export_format')
-def rvc_ai(input_path, output_path, rvc_model_name, model_destination_folder, rvc_model_link, pitch, filter_radius, index_rate, hop_length, rms_mix_rate, protect, autotune, f0method, split_audio, clean_audio, clean_strength, export_format):
+@click.option('--supress')
+def rvc_ai(input_path, output_path, rvc_model_name, model_destination_folder, rvc_model_link, pitch, filter_radius, index_rate, hop_length, rms_mix_rate, protect, autotune, f0method, split_audio, clean_audio, clean_strength, export_format, supress):
     print("Downloading model...")
     with suppress_output(supress):
         filename = rvc_model_name
