@@ -359,14 +359,13 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
             all_files = os.listdir(stage2_dir)
             pass2_outputs_filtered = [os.path.join(stage2_dir, output) for output in all_files if "Instrumental" in output]
             final_output_path = os.path.join(final_output_dir, f"{basename}_final_output.wav")
-            Third_Ensemble_args = [
-                "--audio_input", f"{pass2_outputs_filtered[0]}", f"{pass2_outputs_filtered[1]}", f"{pass2_outputs_filtered[2]}",
-                "--algorithm", f"{algorithm_ensemble_inst}",
-                "--is_normalization", "False",
-                "--wav_type_set", "PCM_16"
-                "--save_path", f"{final_output_path}"
-            ]
-            process_spectrogram(Third_Ensemble_args)
+            process_spectrogram(
+                audio_input=f"{' '.join(pass2_outputs_filtered)}",
+                algorithm=algorithm_ensemble_inst,
+                is_normalization=False,
+                wav_type_set="PCM_16",
+                save_path=final_output_path
+            )
         print(_("Processing of the second Ensemble is over!"))
 
     print(_("Instrumental processing completed."))
@@ -402,7 +401,7 @@ def rvc_ai(input_path, output_path, rvc_model_name, model_destination_folder, rv
         if "drive.google.com" in f"{rvc_model_link}":
             gdown.download(rvc_model_link, str(download_path), quiet=False)
         else:
-            response = requests.get(f"https://{rvc_model_link}")
+            response = requests.get(rvc_model_link)
             with open(download_path, 'wb') as file:
                 file.write(response.content)
         if str(download_path).endswith(".zip"):
@@ -426,24 +425,24 @@ def rvc_ai(input_path, output_path, rvc_model_name, model_destination_folder, rv
 
         output_path = "/content/output_rvc.flac"
         export_format = "FLAC"
-        rvc_args = [
-            "--f0up_key", f"{pitch}",
-            "--filter_radius", f"{filter_radius}",
-            "--index_rate", f"{index_rate}",
-            "--hop_length", f"{hop_length}",
-            "--rms_mix_rate", f"{rms_mix_rate}",
-            "--protect", f"{protect}",
-            "--f0method", f"{f0method}",
-            "--input_path", f"{input_path}",
-            "--output_path", f"{output_path}",
-            "--pth_path", f"{pth_file}",
-            "--index_path", f"{index_file}",
-            "--split_audio", f"{split_audio}",
-            "--clean_audio", f"{clean_audio}",
-            "--clean_strength", f"{clean_strength}",
-            "--export_format", f"{export_format}"
-        ]
-        run_infer_script(rvc_args)
+        run_infer_script(
+            f0up_key=pitch,
+            filter_radius=filter_radius,
+            index_rate=index_rate,
+            rms_mix_rate=rms_mix_rate,
+            protect=protect,
+            hop_length=hop_length,
+            f0method=f0method,
+            input_path=input_path,
+            output_path=output_path,
+            pth_path=pth_file,
+            index_path=index_file,
+            split_audio=split_audio,
+            f0autotune=autotune,
+            clean_audio=clean_audio,
+            clean_strength=clean_strength,
+            export_format=export_format
+        )
     print(_("RVC AI processing complete!"))
     return output_path.replace(".flac", f".{export_format.lower()}")
 
@@ -512,14 +511,13 @@ def mix_audio(audio_paths, output_path, main_gain, inst_gain, output_format, sup
 def ensemble(input_folder, algorithm_ensemble, output_path, supress):
     with suppress_output(supress):
         files = [file for file in os.listdir(input_folder) if os.path.isfile(os.path.join(input_folder, file))]
-        Ensemble_args = [
-            "--audio_input", f"{' '.join(files)}",
-            "--algorithm", f"{algorithm_ensemble}",
-            "--is_normalization", "False",
-            "--wav_type_set", "PCM_16"
-            "--save_path", f"{output_path}"
-        ]
-        process_spectrogram(Ensemble_args)
+        process_spectrogram(
+            audio_input=f"{' '.join(files)}",
+            algorithm=algorithm_ensemble,
+            is_normalization=False,
+            wav_type_set="PCM_16",
+            save_path=output_path
+        )
 
 def main():
     cli.add_command(download_yt)
