@@ -1,8 +1,10 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+import tensorflow as tf
 from yt_dlp import YoutubeDL
 import click
 import subprocess
 import contextlib
-import os
 import sys
 from  glob import glob
 from pydub import AudioSegment
@@ -39,7 +41,7 @@ def find_files(directory, extensions):
   return files[0]
 
 @contextlib.contextmanager
-def suppress_output(supress=True):
+def supress_output(supress=True):
     if supress:
         with open(os.devnull, "w") as devnull:
             old_stdout = sys.stdout
@@ -73,7 +75,7 @@ def download_yt(link, supress):
         'quiet': True
     }
     print(_("Downloading Youtube music..."))
-    with suppress_output(supress):
+    with supress_output(supress):
         with YoutubeDL(options) as ydl:
             ydl.download([link])
     print(_("Download of Youtube music complete!"))
@@ -86,7 +88,7 @@ def download_yt(link, supress):
 @click.option('--supress')
 def download_deezer(link, bf_secret, track_url_key, arl, supress):
     print(_("Downloading Deezer music..."))
-    with suppress_output(supress):
+    with supress_output(supress):
         with open('/content/OrpheusDL/config/settings.json', 'r') as file:
             data = json.load(file)
         data['modules']['deezer']['bf_secret'] = bf_secret
@@ -104,7 +106,7 @@ def download_deezer(link, bf_secret, track_url_key, arl, supress):
 @click.option('--device')
 @click.option('--supress')
 def remove_backing_vocals_and_reverb(input_file, no_back_folder, output_folder, device, supress):
-    with suppress_output(supress):
+    with supress_output(supress):
         basename = os.path.basename(input_file).split(".")[0]
         # Conevert mp3 to flac
         if input_file.endswith(".mp3"):
@@ -116,7 +118,7 @@ def remove_backing_vocals_and_reverb(input_file, no_back_folder, output_folder, 
                 input_file = flac_filename
 
         Vr = models.VrNetwork(name="karokee_4band_v2_sn", other_metadata={'normaliz': False, 'aggressiveness': 0.05,'window_size': 320,'batch_size': 8,'is_tta': True},device=device, logger=None)
-        with suppress_output():
+        with supress_output():
             res = Vr(input_file)
             vocals = res["vocals"]
             af.write(f"{no_back_folder}/{basename}_karokee_4band_v2_sn.wav", vocals, Vr.sample_rate)
@@ -124,10 +126,10 @@ def remove_backing_vocals_and_reverb(input_file, no_back_folder, output_folder, 
         filename_path = get_last_modified_file(no_back_folder)
         no_back_output = os.path.join(no_back_folder, filename_path)
     print(_(f"{basename} processing with karokee_4band_v2_sn is over!"))
-    with suppress_output(supress):
+    with supress_output(supress):
         # Reverb_HQ
         MDX = models.MDX(name="Reverb_HQ",  other_metadata={'segment_size': 384,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
-        with suppress_output():
+        with supress_output():
             res = MDX(no_back_output)
             no_reverb = res["no reverb"]
             af.write(f"{output_folder}/{basename}_Reverb_HQ.wav",  no_reverb, MDX.sample_rate)
@@ -148,7 +150,7 @@ def remove_backing_vocals_and_reverb(input_file, no_back_folder, output_folder, 
 @click.option('--supress')
 def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_inst_folder, no_back_folder, output_folder, device, supress):
     print(_("Separating vocals..."))
-    with suppress_output(supress):
+    with supress_output(supress):
         basename = os.path.basename(input_file).split(".")[0]
         # Conevert mp3 to flac
         if input_file.endswith(".mp3"):
@@ -168,9 +170,9 @@ def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_in
         ]
         proc_file(MDX23C_args)
     print(_(f"{basename} processing with MDX23C-8KFFT-InstVoc_HQ is over!"))
-    with suppress_output(supress):
-        # Ensemble Vocals
-        if vocal_ensemble:
+    # Ensemble Vocals
+    if vocal_ensemble:
+        with supress_output(supress):
             lista = []
             lista.append(get_last_modified_file(no_inst_folder, "Vocals"))
             BSRoformer_args = [
@@ -181,7 +183,8 @@ def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_in
                 "--store_dir", f"{no_inst_folder}",
             ]
             proc_file(BSRoformer_args)
-            print(_(f"{basename} processing with BSRoformer is over!"))
+        print(_(f"{basename} processing with BSRoformer is over!"))
+        with supress_output(supress):
             lista.append(get_last_modified_file(no_inst_folder, "Vocals"))
             ensemble_voc = os.path.join(no_inst_folder, f"{basename}_ensemble1.wav")
             First_Ensemble_args = [
@@ -192,12 +195,12 @@ def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_in
                 "--save_path", f"{ensemble_voc}"
             ]
             process_spectrogram(First_Ensemble_args)
-        filename_path = get_last_modified_file(no_inst_folder)
-        no_inst_output = os.path.join(no_inst_folder, filename_path)
-    with suppress_output(supress):
+            filename_path = get_last_modified_file(no_inst_folder)
+            no_inst_output = os.path.join(no_inst_folder, filename_path)
+    with supress_output(supress):
         # karokee_4band_v2_sn
         Vr = models.VrNetwork(name="karokee_4band_v2_sn", other_metadata={'normaliz': False, 'aggressiveness': 0.05,'window_size': 320,'batch_size': 8,'is_tta': True},device=device, logger=None)
-        with suppress_output():
+        with supress_output():
             res = Vr(no_inst_output)
             vocals = res["vocals"]
             af.write(f"{no_back_folder}/{basename}_karokee_4band_v2_sn.wav", vocals, Vr.sample_rate)
@@ -205,10 +208,10 @@ def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_in
         filename_path = get_last_modified_file(no_back_folder)
         no_back_output = os.path.join(no_back_folder, filename_path)
     print(_(f"{basename} processing with karokee_4band_v2_sn is over!"))
-    with suppress_output(supress):
+    with supress_output(supress):
         # Reverb_HQ
         MDX = models.MDX(name="Reverb_HQ",  other_metadata={'segment_size': 384,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
-        with suppress_output():
+        with supress_output():
             res = MDX(no_back_output)
             no_reverb = res["no reverb"]
             af.write(f"{output_folder}/{basename}_Reverb_HQ.wav",  no_reverb, MDX.sample_rate)
@@ -229,7 +232,7 @@ def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_in
 @click.option('--supress')
 def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble_inst, stage1_dir, stage2_dir, final_output_dir, device, supress):
     print(_("Separating instrumentals..."))
-    with suppress_output(supress):
+    with supress_output(supress):
         basename = os.path.basename(input_file).split(".")[0]
         # Pass 1
         # Conevert mp3 to flac
@@ -245,7 +248,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
         models_names = ["5_HP-Karaoke-UVR.pth", "UVR-MDX-NET-Inst_HQ_4.onnx", "htdemucs.yaml"]
         for model_name in models_names:
             if model_name == "5_HP-Karaoke-UVR.pth":
-                with suppress_output(supress):
+                with supress_output(supress):
                     model_name_without_ext = model_name.split('.')[0]
                     Vr = models.VrNetwork(name="5_HP-Karaoke-UVR", other_metadata={'normaliz': False, 'aggressiveness': 0.05,'window_size': 320,'batch_size': 8,'is_tta': True},device=device, logger=None)
                     res = Vr(input_file)
@@ -255,7 +258,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
                     processed_models.append(model_name)
                 print(_(f"{basename} processing with {model_name_without_ext} is over!"))
             if model_name == "UVR-MDX-NET-Inst_HQ_4.onnx":
-                with suppress_output(supress):
+                with supress_output(supress):
                     model_name_without_ext = model_name.split('.')[0]
                     MDX = models.MDX(name="UVR-MDX-NET-Inst_HQ_4", other_metadata={'segment_size': 256,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
                     res = MDX(input_file)
@@ -265,7 +268,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
                     processed_models.append(model_name)
                 print(_(f"{basename} processing with {model_name_without_ext} is over!"))
             if model_name == "htdemucs.yaml":
-                with suppress_output(supress):
+                with supress_output(supress):
                     model_name_without_ext = model_name.split('.')[0]
                     demucs = models.Demucs(name="htdemucs",other_metadata={"segment":2, "split":True},device=device, logger=None)
                     res = demucs(input_file)
@@ -296,7 +299,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
                 print(_(f"{basename} processing with {model_name_without_ext} is over!"))
         models_names = [model for model in models_names if model not in processed_models]
     else:
-        with suppress_output(supress):
+        with supress_output(supress):
             model_name = "UVR-MDX-NET-Inst_HQ_4.onnx"
             model_name_without_ext = model_name.split('.')[0]
             MDX = models.MDX(name="UVR-MDX-NET-Inst_HQ_4.onnx", other_metadata={'segment_size': 256,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
@@ -309,7 +312,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
         print(_(f"{basename} processing with {model_name_without_ext} is over!"))
 
     if instrumental_ensemble == True:
-        with suppress_output(supress):
+        with supress_output(supress):
             all_files = os.listdir(stage1_dir)
             pass1_outputs_filtered = [os.path.join(stage1_dir, output) for output in all_files if "Instrumental" in output]
             # Second Ensemble
@@ -329,7 +332,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
         models_names = ["karokee_4band_v2_sn.pth", "UVR-MDX-NET-Inst_HQ_4.onnx", "Kim_Vocal_2.onnx"]
         for model_name in model_names:
             if model_name == "karokee_4band_v2_sn.pth":
-                with suppress_output(supress):
+                with supress_output(supress):
                     model_name_without_ext = model_name.split('.')[0]
                     output_path = os.path.join(stage2_dir, f"{basename}_(Instrumental)_{model_name_without_ext}.flac")
                     pass2_outputs.append(output_path)
@@ -341,7 +344,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
                     processed_models.append(model_name)
                 print(_(f"{basename} processing with {model_name_without_ext} is over!"))
             else:
-                with suppress_output(supress):
+                with supress_output(supress):
                     model_name_without_ext = model_name.split('.')[0]
                     output_path = os.path.join(stage2_dir, f"{basename}_(Instrumental)_{model_name_without_ext}.flac")
                     pass2_outputs.append(output_path)
@@ -355,7 +358,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
             models_names = [model for model in models_names if model not in processed_models]
 
         # Third Ensemble
-        with suppress_output(supress):
+        with supress_output(supress):
             all_files = os.listdir(stage2_dir)
             pass2_outputs_filtered = [os.path.join(stage2_dir, output) for output in all_files if "Instrumental" in output]
             final_output_path = os.path.join(final_output_dir, f"{basename}_final_output.wav")
@@ -395,7 +398,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
 @click.option('--supress')
 def rvc_ai(input_path, output_path, rvc_model_name, model_destination_folder, rvc_model_link, pitch, filter_radius, index_rate, hop_length, rms_mix_rate, protect, autotune, f0method, split_audio, clean_audio, clean_strength, export_format, supress):
     print("Downloading model...")
-    with suppress_output(supress):
+    with supress_output(supress):
         filename = rvc_model_name
         download_path = Path(model_destination_folder) / filename
         if "drive.google.com" in f"{rvc_model_link}":
@@ -409,7 +412,7 @@ def rvc_ai(input_path, output_path, rvc_model_name, model_destination_folder, rv
             with zipfile.ZipFile(download_path, 'r') as zip_ref:
                 zip_ref.extractall(f"/content/RVC_CLI/logs/{rvc_model_name}")
     print("Download complete.")
-    with suppress_output(supress):
+    with supress_output(supress):
         current_dir = "/content/RVC_CLI"
         model_folder = os.path.join(current_dir, f"logs/{rvc_model_name}")
 
@@ -456,7 +459,7 @@ def rvc_ai(input_path, output_path, rvc_model_name, model_destination_folder, rv
 @click.option('--output_path')
 @click.option('--supress')
 def reverb(audio_path, reverb_size, reverb_wetness, reverb_dryness, reverb_damping, output_path, supress):
-    with suppress_output(supress):
+    with supress_output(supress):
         add_audio_effects(
             audio_path=audio_path,
             reverb_size=reverb_size,
@@ -473,7 +476,7 @@ def reverb(audio_path, reverb_size, reverb_wetness, reverb_dryness, reverb_dampi
 @click.option('--output_path')
 @click.option('--supress')
 def remove_noise(noise_db_limit, audio_path, output_path, supress):
-    with suppress_output(supress):
+    with supress_output(supress):
         audio = AudioSegment.from_file(audio_path)
         db_limit = noise_db_limit
         silenced_audio = AudioSegment.silent(duration=len(audio))
@@ -493,7 +496,7 @@ def remove_noise(noise_db_limit, audio_path, output_path, supress):
 @click.option('--output_format')
 @click.option('--supress')
 def mix_audio(audio_paths, output_path, main_gain, inst_gain, output_format, supress):
-    with suppress_output(supress):
+    with supress_output(supress):
         combine_audio(
             audio_paths=audio_paths,
             output_path=output_path,
@@ -509,7 +512,7 @@ def mix_audio(audio_paths, output_path, main_gain, inst_gain, output_format, sup
 @click.option('--output_path')
 @click.option('--supress')
 def ensemble(input_folder, algorithm_ensemble, output_path, supress):
-    with suppress_output(supress):
+    with supress_output(supress):
         files = [file for file in os.listdir(input_folder) if os.path.isfile(os.path.join(input_folder, file))]
         process_spectrogram(
             audio_input=f"{' '.join(files)}",
