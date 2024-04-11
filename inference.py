@@ -249,7 +249,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
                     model_name_without_ext = model_name.split('.')[0]
                     Vr = models.VrNetwork(name="5_HP-Karaoke-UVR", other_metadata={'normaliz': False, 'aggressiveness': 0.05,'window_size': 320,'batch_size': 8,'is_tta': True},device=device, logger=None)
                     res = Vr(input_file)
-                    instrumentals = res["instrumentals"]
+                    instrumentals = res["instrumental"]
                     af.write(f"{stage1_dir}/{basename}_{model_name_without_ext}.wav", instrumentals, Vr.sample_rate)
                     torch.cuda.empty_cache()
                     processed_models.append(model_name)
@@ -259,7 +259,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
                     model_name_without_ext = model_name.split('.')[0]
                     MDX = models.MDX(name="UVR-MDX-NET-Inst_HQ_4", other_metadata={'segment_size': 256,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
                     res = MDX(input_file)
-                    instrumentals = res["instrumentals"]
+                    instrumentals = res["instrumental"]
                     af.write(f"{stage1_dir}/{basename}_{model_name_without_ext}.wav", instrumentals, MDX.sample_rate)
                     torch.cuda.empty_cache()
                     processed_models.append(model_name)
@@ -301,7 +301,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
             model_name_without_ext = model_name.split('.')[0]
             MDX = models.MDX(name="UVR-MDX-NET-Inst_HQ_4.onnx", other_metadata={'segment_size': 256,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
             res = MDX(input_file)
-            instrumentals = res["instrumentals"]
+            instrumentals = res["instrumental"]
             af.write(f"{stage1_dir}/{basename}_Inst-HQ4.wav", instrumentals, MDX.sample_rate)
             torch.cuda.empty_cache()
             processed_models.append(model_name)
@@ -335,7 +335,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
                     pass2_outputs.append(output_path)
                     Vr = models.VrNetwork(name="karokee_4band_v2_sn", other_metadata={'aggressiveness': 0.05,'window_size': 320,'batch_size': 8,'is_tta': True},device=device, logger=None)
                     res = Vr(ensemble1_output)
-                    instrumentals = res["instrumentals"]
+                    instrumentals = res["instrumental"]
                     af.write(f"{stage2_dir}/{basename}_karokee_4band_v2_sn.wav", instrumentals, Vr.sample_rate)
                     torch.cuda.empty_cache()
                     processed_models.append(model_name)
@@ -347,7 +347,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
                     pass2_outputs.append(output_path)
                     MDX = models.MDX(name=f"{model_name}", other_metadata={'segment_size': 256,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
                     res = MDX(input_file)
-                    instrumentals = res["instrumentals"]
+                    instrumentals = res["instrumental"]
                     af.write(f"{stage2_dir}/{input_file}_{model_name}.wav", instrumentals, MDX.sample_rate)
                     torch.cuda.empty_cache()
                     processed_models.append(model_name)
@@ -399,10 +399,10 @@ def rvc_ai(input_path, output_path, rvc_model_name, model_destination_folder, rv
     with suppress_output(supress):
         filename = rvc_model_name
         download_path = Path(model_destination_folder) / filename
-        if "drive.google.com" in rvc_model_link:
+        if "drive.google.com" in f"{rvc_model_link}":
             gdown.download(rvc_model_link, str(download_path), quiet=False)
         else:
-            response = requests.get(rvc_model_link)
+            response = requests.get("https://", f"{rvc_model_link}")
             with open(download_path, 'wb') as file:
                 file.write(response.content)
         if str(download_path).endswith(".zip"):
@@ -467,7 +467,7 @@ def reverb(audio_path, reverb_size, reverb_wetness, reverb_dryness, reverb_dampi
             "--output-format", f"{output_format}",
             "--output_path", f"{output_path}"
         ]
-        reverbpedalboard_main(reverb_args)
+        add_audio_effects(reverb_args)
     return
 
 @click.command("remove_noise")
@@ -504,7 +504,7 @@ def mix_audio(audio_paths, output_path, main_gain, inst_gain, output_format, sup
             "--inst_gain", f"{inst_gain}",
             "--output_format", f"{output_format}"
         ]
-        mix_main(mix_args)
+        combine_audio(mix_args)
 
 @click.command("ensemble")
 @click.option('--input_folder')
