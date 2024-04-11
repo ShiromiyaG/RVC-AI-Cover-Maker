@@ -39,7 +39,7 @@ def find_files(directory, extensions):
   return files[0]
 
 @contextlib.contextmanager
-def suppress_output(supress=True):
+def suppress_output(supress):
     if supress:
         with open(os.devnull, "w") as devnull:
             old_stdout = sys.stdout
@@ -175,8 +175,8 @@ def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_in
             lista.append(get_last_modified_file(no_inst_folder, "Vocals"))
             BSRoformer_args = [
                 "--model_type", "bs_roformer",
-                "--config_path", "Music-Source-Separation-Training/models/model_bs_roformer_ep_317_sdr_12.9755.yaml",
-                "--start_check_point", "Music-Source-Separation-Training/models/model_bs_roformer_ep_317_sdr_12.9755.ckpt",
+                "--config_path", "Music_Source_Separation_Training/models/model_bs_roformer_ep_317_sdr_12.9755.yaml",
+                "--start_check_point", "Music_Source_Separation_Training/models/model_bs_roformer_ep_317_sdr_12.9755.ckpt",
                 "--input_file", f"{input_file}",
                 "--store_dir", f"{no_inst_folder}",
             ]
@@ -352,7 +352,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
                     torch.cuda.empty_cache()
                     processed_models.append(model_name)
                 print(_(f"{basename} processing with {model_name_without_ext} is over!"))
-                model_names = [model for model in model_names if model not in processed_models]
+            model_names = [model for model in model_names if model not in processed_models]
 
         # Third Ensemble
         with suppress_output(supress):
@@ -402,7 +402,7 @@ def rvc_ai(input_path, output_path, rvc_model_name, model_destination_folder, rv
         if "drive.google.com" in f"{rvc_model_link}":
             gdown.download(rvc_model_link, str(download_path), quiet=False)
         else:
-            response = requests.get("https://", f"{rvc_model_link}")
+            response = requests.get("https://" + f"{rvc_model_link}")
             with open(download_path, 'wb') as file:
                 file.write(response.content)
         if str(download_path).endswith(".zip"):
@@ -458,16 +458,7 @@ def rvc_ai(input_path, output_path, rvc_model_name, model_destination_folder, rv
 @click.option('--supress')
 def reverb(audio_path, reverb_size, reverb_wetness, reverb_dryness, reverb_damping, output_format, output_path, supress):
     with suppress_output(supress):
-        reverb_args = [
-            "--audio_path", f"{audio_path}",
-            "--reverb-size", f"{reverb_size}",
-            "--reverb-wetness", f"{reverb_wetness}",
-            "--reverb-dryness", f"{reverb_dryness}",
-            "--reverb-damping", f"{reverb_damping}",
-            "--output-format", f"{output_format}",
-            "--output_path", f"{output_path}"
-        ]
-        add_audio_effects(reverb_args)
+        add_audio_effects(audio_path=audio_path, reverb_size=reverb_size, reverb_wetness=reverb_wetness, reverb_dryness=reverb_dryness, reverb_damping=reverb_damping, output_format=output_format, output_path=output_path, supress=supress)
     return
 
 @click.command("remove_noise")
@@ -497,14 +488,7 @@ def remove_noise(noise_db_limit, audio_path, output_path, supress):
 @click.option('--supress')
 def mix_audio(audio_paths, output_path, main_gain, inst_gain, output_format, supress):
     with suppress_output(supress):
-        mix_args = [
-            "--audio_paths", f"{audio_paths}",
-            "--output_path", f"{output_path}",
-            "--main_gain", f"{main_gain}",
-            "--inst_gain", f"{inst_gain}",
-            "--output_format", f"{output_format}"
-        ]
-        combine_audio(mix_args)
+        combine_audio(audio_paths=audio_paths, output_path=output_path, main_gain=main_gain, inst_gain=inst_gain, output_format=output_format, supress=supress)
 
 @click.command("ensemble")
 @click.option('--input_folder')
