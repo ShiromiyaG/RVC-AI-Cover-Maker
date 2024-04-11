@@ -402,7 +402,7 @@ def rvc_ai(input_path, output_path, rvc_model_name, rvc_model_name_ext, model_de
     print("Downloading model...")
     with supress_output(supress):
         filename = rvc_model_name
-        download_path = Path(model_destination_folder) / filename + rvc_model_name_ext
+        download_path = str(Path(model_destination_folder)) / filename + rvc_model_name_ext
         if "drive.google.com" in f"{rvc_model_link}":
             gdown.download(rvc_model_link, str(download_path), quiet=False)
         else:
