@@ -39,7 +39,7 @@ def find_files(directory, extensions):
   return files[0]
 
 @contextlib.contextmanager
-def suppress_output(supress):
+def suppress_output(supress=True):
     if supress:
         with open(os.devnull, "w") as devnull:
             old_stdout = sys.stdout
@@ -148,7 +148,7 @@ def remove_backing_vocals_and_reverb(input_file, no_back_folder, output_folder, 
 @click.option('--supress')
 def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_inst_folder, no_back_folder, output_folder, device, supress):
     print(_("Separating vocals..."))
-    with suppress_output():
+    with suppress_output(supress):
         basename = os.path.basename(input_file).split(".")[0]
         # Conevert mp3 to flac
         if input_file.endswith(".mp3"):
@@ -402,7 +402,7 @@ def rvc_ai(input_path, output_path, rvc_model_name, model_destination_folder, rv
         if "drive.google.com" in f"{rvc_model_link}":
             gdown.download(rvc_model_link, str(download_path), quiet=False)
         else:
-            response = requests.get("https://" + f"{rvc_model_link}")
+            response = requests.get(f"https://{rvc_model_link}")
             with open(download_path, 'wb') as file:
                 file.write(response.content)
         if str(download_path).endswith(".zip"):
@@ -458,7 +458,15 @@ def rvc_ai(input_path, output_path, rvc_model_name, model_destination_folder, rv
 @click.option('--supress')
 def reverb(audio_path, reverb_size, reverb_wetness, reverb_dryness, reverb_damping, output_format, output_path, supress):
     with suppress_output(supress):
-        add_audio_effects(audio_path=audio_path, reverb_size=reverb_size, reverb_wetness=reverb_wetness, reverb_dryness=reverb_dryness, reverb_damping=reverb_damping, output_format=output_format, output_path=output_path, supress=supress)
+        add_audio_effects(
+            audio_path=audio_path,
+            reverb_size=reverb_size,
+            reverb_wetness=reverb_wetness,
+            reverb_dryness=reverb_dryness,
+            reverb_damping=reverb_damping,
+            output_format=output_format,
+            output_path=output_path
+        )
     return
 
 @click.command("remove_noise")
@@ -488,7 +496,14 @@ def remove_noise(noise_db_limit, audio_path, output_path, supress):
 @click.option('--supress')
 def mix_audio(audio_paths, output_path, main_gain, inst_gain, output_format, supress):
     with suppress_output(supress):
-        combine_audio(audio_paths=audio_paths, output_path=output_path, main_gain=main_gain, inst_gain=inst_gain, output_format=output_format, supress=supress)
+        combine_audio(
+            audio_paths=audio_paths,
+            output_path=output_path,
+            main_gain=main_gain,
+            inst_gain=inst_gain,
+            output_format=output_format
+            supress=supress
+        )
 
 @click.command("ensemble")
 @click.option('--input_folder')
