@@ -167,6 +167,11 @@ def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_in
             "--store_dir", f"{no_inst_folder}",
         ]
         proc_file(MDX23C_args)
+        file = get_last_modified_file(no_inst_folder, "Vocals")
+        base_name = Path(file).stem
+        extension = Path(file).suffix
+        new_name = f"{base_name}MDX23C-8KFFT-InstVoc_HQ{extension}"
+        os.rename(file, os.path.join(os.path.dirname(file), new_name))
     print(_(f"{basename} processing with MDX23C-8KFFT-InstVoc_HQ is over!"))
     # Ensemble Vocals
     if vocal_ensemble:
@@ -308,12 +313,11 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
             processed_models.append(model_name)
             final_output_path = os.path.join(stage1_dir, f"{basename}_{model_name_without_ext}.flac")
         print(_(f"{basename} processing with {model_name_without_ext} is over!"))
-
-    if instrumental_ensemble == True:
+    # Second Ensemble
+    if instrumental_ensemble:
         with supress_output(supress):
             all_files = os.listdir(stage1_dir)
             pass1_outputs_filtered = [os.path.join(stage1_dir, output) for output in all_files if "Instrumental" in output]
-            # Second Ensemble
             ensemble1_output = os.path.join(stage1_dir, f"{basename}_ensemble1.wav")
             Second_Ensemble_args = [
                 "--audio_input", f"{pass1_outputs_filtered[0]}", f"{pass1_outputs_filtered[1]}", f"{pass1_outputs_filtered[2]}",
@@ -368,7 +372,6 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
                 save_path=final_output_path
             )
         print(_("Processing of the second Ensemble is over!"))
-
     print(_("Instrumental processing completed."))
     if instrumental_ensemble == True:
         return [output for output in final_output_path if "instrumental" in output]
@@ -379,6 +382,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
 @click.option('--input_path')
 @click.option('--output_path')
 @click.option('--rvc_model_name')
+@click.option('--rvc_model_name_ext')
 @click.option('--model_destination_folder')
 @click.option('--rvc_model_link')
 @click.option('--pitch')
@@ -394,11 +398,11 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
 @click.option('--clean_strength')
 @click.option('--export_format')
 @click.option('--supress')
-def rvc_ai(input_path, output_path, rvc_model_name, model_destination_folder, rvc_model_link, pitch, filter_radius, index_rate, hop_length, rms_mix_rate, protect, autotune, f0method, split_audio, clean_audio, clean_strength, export_format, supress):
+def rvc_ai(input_path, output_path, rvc_model_name, rvc_model_name_ext, model_destination_folder, rvc_model_link, pitch, filter_radius, index_rate, hop_length, rms_mix_rate, protect, autotune, f0method, split_audio, clean_audio, clean_strength, export_format, supress):
     print("Downloading model...")
     with supress_output(supress):
         filename = rvc_model_name
-        download_path = Path(model_destination_folder) / filename
+        download_path = Path(model_destination_folder) / filename + rvc_model_name_ext
         if "drive.google.com" in f"{rvc_model_link}":
             gdown.download(rvc_model_link, str(download_path), quiet=False)
         else:
@@ -408,7 +412,7 @@ def rvc_ai(input_path, output_path, rvc_model_name, model_destination_folder, rv
         if str(download_path).endswith(".zip"):
             Path(f'/content/RVC_CLI/logs/{rvc_model_name}').mkdir(parents=True, exist_ok=True)
             with zipfile.ZipFile(download_path, 'r') as zip_ref:
-                zip_ref.extractall(f"/content/RVC_CLI/logs/{rvc_model_name}")
+                zip_ref.extractall(f"/content/RVC_CLI/logs/{rvc_model_name}"+".zip")
     print("Download complete.")
     with supress_output(supress):
         current_dir = "/content/RVC_CLI"
@@ -457,6 +461,10 @@ def rvc_ai(input_path, output_path, rvc_model_name, model_destination_folder, rv
 @click.option('--supress')
 def reverb(audio_path, reverb_size, reverb_wetness, reverb_dryness, reverb_damping, output_path, supress):
     with supress_output(supress):
+        reverb_size = float(reverb_size)
+        reverb_dry = float(reverb_dry)
+        reverb_wet = float(reverb_wet)
+        reverb_damping = float(reverb_damping)
         add_audio_effects(
             audio_path=audio_path,
             reverb_size=reverb_size,
