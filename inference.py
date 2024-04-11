@@ -114,7 +114,6 @@ def remove_backing_vocals_and_reverb(input_file, no_back_folder, output_folder, 
             if not os.path.exists(flac_filename):
                 audio = AudioSegment.from_mp3(input_file)
                 audio.export(f"{flac_filename}", format="flac")
-                os.remove(input_file)
                 input_file = flac_filename
 
         Vr = models.VrNetwork(name="karokee_4band_v2_sn", other_metadata={'normaliz': False, 'aggressiveness': 0.05,'window_size': 320,'batch_size': 8,'is_tta': True},device=device, logger=None)
@@ -158,7 +157,6 @@ def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_in
             if not os.path.exists(flac_filename):
                 audio = AudioSegment.from_mp3(input_file)
                 audio.export(f"{flac_filename}", format="flac")
-                os.remove(input_file)
                 input_file = flac_filename
         # MDX23C-8KFFT-InstVoc_HQ
         MDX23C_args = [
@@ -455,7 +453,6 @@ def rvc_ai(input_path, output_path, rvc_model_name, model_destination_folder, rv
 @click.option('--reverb_wetness')
 @click.option('--reverb_dryness')
 @click.option('--reverb_damping')
-@click.option('--output_format')
 @click.option('--output_path')
 @click.option('--supress')
 def reverb(audio_path, reverb_size, reverb_wetness, reverb_dryness, reverb_damping, output_path, supress):
