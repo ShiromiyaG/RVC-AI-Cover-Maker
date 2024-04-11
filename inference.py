@@ -294,7 +294,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
                         os.remove(audio_file)
                     processed_models.append(model_name)
                 print(_(f"{basename} processing with {model_name_without_ext} is over!"))
-            model_names = [model for model in model_names if model not in processed_models]
+        models_names = [model for model in models_names if model not in processed_models]
     else:
         with suppress_output(supress):
             model_name = "UVR-MDX-NET-Inst_HQ_4.onnx"
@@ -326,7 +326,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
         # Pass 2
         processed_models = []
         pass2_outputs = []
-        model_names = ["karokee_4band_v2_sn.pth", "UVR-MDX-NET-Inst_HQ_4.onnx", "Kim_Vocal_2.onnx"]
+        models_names = ["karokee_4band_v2_sn.pth", "UVR-MDX-NET-Inst_HQ_4.onnx", "Kim_Vocal_2.onnx"]
         for model_name in model_names:
             if model_name == "karokee_4band_v2_sn.pth":
                 with suppress_output(supress):
@@ -352,7 +352,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
                     torch.cuda.empty_cache()
                     processed_models.append(model_name)
                 print(_(f"{basename} processing with {model_name_without_ext} is over!"))
-            model_names = [model for model in model_names if model not in processed_models]
+            models_names = [model for model in models_names if model not in processed_models]
 
         # Third Ensemble
         with suppress_output(supress):
@@ -456,15 +456,14 @@ def rvc_ai(input_path, output_path, rvc_model_name, model_destination_folder, rv
 @click.option('--output_format')
 @click.option('--output_path')
 @click.option('--supress')
-def reverb(audio_path, reverb_size, reverb_wetness, reverb_dryness, reverb_damping, output_format, output_path, supress):
+def reverb(audio_path, reverb_size, reverb_wetness, reverb_dryness, reverb_damping, output_path, supress):
     with suppress_output(supress):
         add_audio_effects(
             audio_path=audio_path,
             reverb_size=reverb_size,
-            reverb_wetness=reverb_wetness,
-            reverb_dryness=reverb_dryness,
+            reverb_wet=reverb_wetness,
+            reverb_dry=reverb_dryness,
             reverb_damping=reverb_damping,
-            output_format=output_format,
             output_path=output_path
         )
     return
@@ -501,7 +500,7 @@ def mix_audio(audio_paths, output_path, main_gain, inst_gain, output_format, sup
             output_path=output_path,
             main_gain=main_gain,
             inst_gain=inst_gain,
-            output_format=output_format
+            output_format=output_format,
             supress=supress
         )
 
