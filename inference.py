@@ -401,7 +401,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
 @click.option('--clean_strength')
 @click.option('--export_format')
 @click.option('--supress')
-def rvc_ai(input_path="Live and Learn - Sonic Adventure 2 [OST]_Reverb_HQ.wav", output_path="./teste.wav", rvc_model_name="andre-matos-ritual-v2", rvc_model_name_ext=".zip", model_destination_folder="./content/RVC_CLI/logs", rvc_model_link="https://huggingface.co/ShiromiyaGamer/modelos-canal/resolve/main/andre-matos-ritual-v2.zip", pitch=0, filter_radius=3, index_rate=0.7, hop_length=128, rms_mix_rate=0.8, protect=0.5, autotune=False, f0method="rmvpe", split_audio=False, clean_audio=False, clean_strength=0, export_format="flac", supress=False):
+def rvc_ai(input_path, output_path, rvc_model_name, rvc_model_name_ext=, model_destination_folder=, rvc_model_link, pitch, filter_radius, index_rate, hop_length, rms_mix_rate, protect, autotune, f0method, split_audio, clean_audio, clean_strength, export_format, supress):
     print("Downloading model...")
     with supress_output(supress):
         filename = rvc_model_name
