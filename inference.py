@@ -40,6 +40,13 @@ def find_files(directory, extensions):
   files = glob(f'{directory}/**/*{extensions}', recursive=True)
   return files[0]
 
+def convertToFlac(ipnut_file):
+    flac_filename = os.path.splitext(input_file)[0] + '.flac'
+        if not os.path.exists(flac_filename):
+            audio = AudioSegment.from_mp3(input_file)
+            audio.export(f"{flac_filename}", format="flac")
+            return flac_filename
+
 @contextlib.contextmanager
 def supress_output(supress=True):
     if supress:
@@ -106,37 +113,11 @@ def download_deezer(link, bf_secret, track_url_key, arl, supress):
 @click.option('--device')
 @click.option('--supress')
 def remove_backing_vocals_and_reverb(input_file, no_back_folder, output_folder, device, supress):
-    with supress_output(supress):
-        basename = os.path.basename(input_file).split(".")[0]
-        # Conevert mp3 to flac
-        if input_file.endswith(".mp3"):
-            flac_filename = os.path.splitext(input_file)[0] + '.flac'
-            if not os.path.exists(flac_filename):
-                audio = AudioSegment.from_mp3(input_file)
-                audio.export(f"{flac_filename}", format="flac")
-                input_file = flac_filename
-
-        Vr = models.VrNetwork(name="karokee_4band_v2_sn", other_metadata={'normaliz': False, 'aggressiveness': 0.05,'window_size': 320,'batch_size': 8,'is_tta': True},device=device, logger=None)
-        with supress_output():
-            res = Vr(input_file)
-            vocals = res["vocals"]
-            af.write(f"{no_back_folder}/{basename}_karokee_4band_v2_sn.wav", vocals, Vr.sample_rate)
-        torch.cuda.empty_cache()
-        filename_path = get_last_modified_file(no_back_folder)
-        no_back_output = os.path.join(no_back_folder, filename_path)
-    print(_(f"{basename} processing with karokee_4band_v2_sn is over!"))
-    with supress_output(supress):
-        # Reverb_HQ
-        MDX = models.MDX(name="Reverb_HQ",  other_metadata={'segment_size': 384,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
-        with supress_output():
-            res = MDX(no_back_output)
-            no_reverb = res["no reverb"]
-            af.write(f"{output_folder}/{basename}_Reverb_HQ.wav",  no_reverb, MDX.sample_rate)
-        torch.cuda.empty_cache()
-    print(_(f"{basename} processing with Reverb HQ is over!"))
-    print(_("Vocal processing completed."))
-    print(_("Separation complete!"))
-    return [output for output in output_folder if "Reverb_HQ" in output]
+    basename = os.path.basename(input_file).split(".")[0]
+    if input_file.endswith(".mp3"):
+        input_file = convertToFlac(input_file)
+    processed = processKarokeeVoc(input_file, basename, no_back_folder, device, supress)
+    return processReverb(processed, basename, output_folder, device, supress)
 
 @click.command("separate_vocals")
 @click.option('--input_file')
@@ -149,35 +130,41 @@ def remove_backing_vocals_and_reverb(input_file, no_back_folder, output_folder, 
 @click.option('--supress')
 def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_inst_folder, no_back_folder, output_folder, device, supress):
     print(_("Separating vocals..."))
-    with supress_output(supress):
-        basename = os.path.basename(input_file).split(".")[0]
-        # Conevert mp3 to flac
-        if input_file.endswith(".mp3"):
-            flac_filename = os.path.splitext(input_file)[0] + '.flac'
-            if not os.path.exists(flac_filename):
-                audio = AudioSegment.from_mp3(input_file)
-                audio.export(f"{flac_filename}", format="flac")
-                input_file = flac_filename
-        # MDX23C-8KFFT-InstVoc_HQ
-        MDX23C_args = [
-            "--model_type", "mdx23c",
-            "--config_path", "Music_Source_Separation_Training/models/model_2_stem_full_band_8k.yaml",
-            "--start_check_point", "Music_Source_Separation_Training/models/MDX23C-8KFFT-InstVoc_HQ.ckpt",
-            "--input_file", f"{input_file}",
-            "--store_dir", f"{no_inst_folder}",
-        ]
-        proc_file(MDX23C_args)
-        file = get_last_modified_file(no_inst_folder, "Vocals")
-        base_name = Path(file).stem
-        extension = Path(file).suffix
-        new_name = f"{base_name}MDX23C-8KFFT-InstVoc_HQ{extension}"
-        os.rename(file, os.path.join(os.path.dirname(file), new_name))
-    print(_(f"{basename} processing with MDX23C-8KFFT-InstVoc_HQ is over!"))
-    # Ensemble Vocals
+    basename = os.path.basename(input_file).split(".")[0]
+    if input_file.endswith(".mp3"):
+        input_file = convertToFlac(input_file)
+    lista = []
+    processed = processMSST(input_file, basename, no_inst_folder, "MDX23C", supress)
+    lista.append(processed)
     if vocal_ensemble:
+        processed = processMSST(input_file, basename, no_inst_folder, "BSRoformer", supress)
+        lista.append(processed)
+        ensemble = processVocalEnsemble(no_inst_folder, lista, basename, algorithm_ensemble_vocals, supress)
+    processed = processKarokeeVoc(ensemble, basename, no_back_folder, device, supress)
+    print(_("Separation complete!"))
+    return processReverb(processed, basename, output_folder, supress)
+
+
+def processMSST(input_file, basename, folder, model_type, supress):
+    if model_type == "MDX23C":
         with supress_output(supress):
-            lista = []
-            lista.append(get_last_modified_file(no_inst_folder, "Vocals"))
+            MDX23C_args = [
+                "--model_type", "mdx23c",
+                "--config_path", "Music_Source_Separation_Training/models/model_2_stem_full_band_8k.yaml",
+                "--start_check_point", "Music_Source_Separation_Training/models/MDX23C-8KFFT-InstVoc_HQ.ckpt",
+                "--input_file", f"{input_file}",
+                "--store_dir", f"{no_inst_folder}",
+            ]
+            proc_file(MDX23C_args)
+            file = get_last_modified_file(no_inst_folder, "Vocals")
+            basename = Path(file).stem
+            extension = Path(file).suffix
+            new_name = f"{basename}_MDX23C-8KFFT-InstVoc_HQ{extension}"
+            os.rename(file, os.path.join(os.path.dirname(file), new_name))
+        print(_(f"{basename} processing with MDX23C-8KFFT-InstVoc_HQ is over!"))
+        return get_last_modified_file(no_inst_folder, "Vocals")
+    if model_type == "BSRoformer":
+        with supress_output(supress):
             BSRoformer_args = [
                 "--model_type", "bs_roformer",
                 "--config_path", "Music_Source_Separation_Training/models/model_bs_roformer_ep_317_sdr_12.9755.yaml",
@@ -186,42 +173,53 @@ def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_in
                 "--store_dir", f"{no_inst_folder}",
             ]
             proc_file(BSRoformer_args)
+            file = get_last_modified_file(no_inst_folder, "Vocals")
+            basename = Path(file).stem
+            extension = Path(file).suffix
+            new_name = f"{basename}_BSRoformer{extension}"
+            os.rename(file, os.path.join(os.path.dirname(file), new_name))
         print(_(f"{basename} processing with BSRoformer is over!"))
-        with supress_output(supress):
-            lista.append(get_last_modified_file(no_inst_folder, "Vocals"))
-            ensemble_voc = os.path.join(no_inst_folder, f"{basename}_ensemble1.wav")
-            First_Ensemble_args = [
-                "--audio_input", f"{lista[0]}", f"{lista[1]}",
-                "--algorithm", f"{algorithm_ensemble_vocals}",
-                "--is_normalization", "False",
-                "--wav_type_set", "PCM_16"
-                "--save_path", f"{ensemble_voc}"
-            ]
-            process_spectrogram(First_Ensemble_args)
-            filename_path = get_last_modified_file(no_inst_folder)
-            no_inst_output = os.path.join(no_inst_folder, filename_path)
+        return get_last_modified_file(no_inst_folder, "Vocals")
+
+def processVocalEnsemble(no_inst_folder, lista, basename, algorithm_ensemble_vocals, supress):
     with supress_output(supress):
-        # karokee_4band_v2_sn
+        ensemble_voc = os.path.join(no_inst_folder, f"{basename}_ensemble1.wav")
+        First_Ensemble_args = [
+            "--audio_input", f"{lista[0]}", f"{lista[1]}",
+            "--algorithm", f"{algorithm_ensemble_vocals}",
+            "--is_normalization", "False",
+            "--wav_type_set", "PCM_16"
+            "--save_path", f"{ensemble_voc}"
+        ]
+        process_spectrogram(First_Ensemble_args)
+        filename_path = get_last_modified_file(no_inst_folder)
+        ensemble = os.path.join(no_inst_folder, filename_path)
+    print(_("Processing of the first Ensemble is over!"))
+    return ensemble
+
+def processKarokeeVoc(ensemble, basename, no_back_folder, device, supress):
+    with supress_output(supress):
         Vr = models.VrNetwork(name="karokee_4band_v2_sn", other_metadata={'normaliz': False, 'aggressiveness': 0.05,'window_size': 320,'batch_size': 8,'is_tta': True},device=device, logger=None)
         with supress_output():
-            res = Vr(no_inst_output)
+            res = Vr(ensemble)
             vocals = res["vocals"]
             af.write(f"{no_back_folder}/{basename}_karokee_4band_v2_sn.wav", vocals, Vr.sample_rate)
         torch.cuda.empty_cache()
         filename_path = get_last_modified_file(no_back_folder)
         no_back_output = os.path.join(no_back_folder, filename_path)
     print(_(f"{basename} processing with karokee_4band_v2_sn is over!"))
+    return no_back_output
+
+def processReverb(processed, basename, output_folder, supress):
     with supress_output(supress):
-        # Reverb_HQ
         MDX = models.MDX(name="Reverb_HQ",  other_metadata={'segment_size': 384,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
         with supress_output():
-            res = MDX(no_back_output)
+            res = MDX(processed)
             no_reverb = res["no reverb"]
             af.write(f"{output_folder}/{basename}_Reverb_HQ.wav",  no_reverb, MDX.sample_rate)
         torch.cuda.empty_cache()
     print(_(f"{basename} processing with Reverb HQ is over!"))
     print(_("Vocal processing completed."))
-    print(_("Separation complete!"))
     return [output for output in output_folder if "Reverb_HQ" in output]
 
 @click.command("separate_instrumentals")
@@ -235,148 +233,137 @@ def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_in
 @click.option('--supress')
 def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble_inst, stage1_dir, stage2_dir, final_output_dir, device, supress):
     print(_("Separating instrumentals..."))
-    with supress_output(supress):
-        basename = os.path.basename(input_file).split(".")[0]
-        # Pass 1
-        # Conevert mp3 to flac
-        if input_file.endswith(".mp3"):
-            flac_filename = os.path.splitext(input_file)[0] + '.flac'
-            if not os.path.exists(flac_filename):
-                audio = AudioSegment.from_mp3(input_file)
-                audio.export(f"{flac_filename}", format="flac")
-                os.remove(input_file)
-                input_file = flac_filename
+    basename = os.path.basename(input_file).split(".")[0]
+    # Pass 1
+    if input_file.endswith(".mp3"):
+        input_file = convertToFlac(input_file)
     if instrumental_ensemble:
         processed_models = []
         models_names = ["5_HP-Karaoke-UVR.pth", "UVR-MDX-NET-Inst_HQ_4.onnx", "htdemucs.yaml"]
         for model_name in models_names:
             if model_name == "5_HP-Karaoke-UVR.pth":
-                with supress_output(supress):
-                    model_name_without_ext = model_name.split('.')[0]
-                    Vr = models.VrNetwork(name="5_HP-Karaoke-UVR", other_metadata={'normaliz': False, 'aggressiveness': 0.05,'window_size': 320,'batch_size': 8,'is_tta': True},device=device, logger=None)
-                    res = Vr(input_file)
-                    instrumentals = res["instrumental"]
-                    af.write(f"{stage1_dir}/{basename}_{model_name_without_ext}.wav", instrumentals, Vr.sample_rate)
-                    torch.cuda.empty_cache()
-                    processed_models.append(model_name)
-                print(_(f"{basename} processing with {model_name_without_ext} is over!"))
+                process_5HP_Karaoke(input_file, basename, stage1_dir, model_name, device, supress)
             if model_name == "UVR-MDX-NET-Inst_HQ_4.onnx":
-                with supress_output(supress):
-                    model_name_without_ext = model_name.split('.')[0]
-                    MDX = models.MDX(name="UVR-MDX-NET-Inst_HQ_4", other_metadata={'segment_size': 256,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
-                    res = MDX(input_file)
-                    instrumentals = res["instrumental"]
-                    af.write(f"{stage1_dir}/{basename}_{model_name_without_ext}.wav", instrumentals, MDX.sample_rate)
-                    torch.cuda.empty_cache()
-                    processed_models.append(model_name)
-                print(_(f"{basename} processing with {model_name_without_ext} is over!"))
+                processInstHQ4(input_file, basename, stage1_dir, model_name, device, supress)
             if model_name == "htdemucs.yaml":
-                with supress_output(supress):
-                    model_name_without_ext = model_name.split('.')[0]
-                    demucs = models.Demucs(name="htdemucs",other_metadata={"segment":2, "split":True},device=device, logger=None)
-                    res = demucs(input_file)
-                    drum = res["drums"]
-                    bass = res["bass"]
-                    other = res["other"]
-                    af.write(f"{stage1_dir}/{basename}_(Drums)_htdemucs.wav", drum, demucs.sample_rate)
-                    af.write(f"{stage1_dir}/{basename}_(Bass)_htdemucs.wav", bass, demucs.sample_rate)
-                    af.write(f"{stage1_dir}/{basename}_(Other)_htdemucs.wav", other, demucs.sample_rate)
-                    torch.cuda.empty_cache()
-                    audio_files = [
-                        os.path.join(stage1_dir, f"{basename}_(Drums)_htdemucs.wav"),
-                        os.path.join(stage1_dir, f"{basename}_(Bass)_htdemucs.wav"),
-                        os.path.join(stage1_dir, f"{basename}_(Other)_htdemucs.wav")
-                    ]
-
-                    combined_audio = AudioSegment.from_file(audio_files[0], format="flac")
-
-                    for audio_file in audio_files[1:]:
-                        audio = AudioSegment.from_file(audio_file, format="flac")
-                        combined_audio = combined_audio.overlay(audio)
-
-                    combined_audio.export(f"{stage1_dir}/{basename}_demucs_(Instrumental).flac", format="flac")
-
-                    for audio_file in audio_files:
-                        os.remove(audio_file)
-                    processed_models.append(model_name)
-                print(_(f"{basename} processing with {model_name_without_ext} is over!"))
+                processHtDemucs(input_file, basename, stage1_dir, model_name, device, supress)
         models_names = [model for model in models_names if model not in processed_models]
     else:
-        with supress_output(supress):
-            model_name = "UVR-MDX-NET-Inst_HQ_4.onnx"
-            model_name_without_ext = model_name.split('.')[0]
-            MDX = models.MDX(name="UVR-MDX-NET-Inst_HQ_4.onnx", other_metadata={'segment_size': 256,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
-            res = MDX(input_file)
-            instrumentals = res["instrumental"]
-            af.write(f"{stage1_dir}/{basename}_Inst-HQ4.wav", instrumentals, MDX.sample_rate)
-            torch.cuda.empty_cache()
-            processed_models.append(model_name)
-            final_output_path = os.path.join(stage1_dir, f"{basename}_{model_name_without_ext}.flac")
-        print(_(f"{basename} processing with {model_name_without_ext} is over!"))
+        processInstHQ4(input_file, basename, stage1_dir, model_name="UVR-MDX-NET-Inst_HQ_4.onnx", device, supress)
     # Second Ensemble
     if instrumental_ensemble:
-        with supress_output(supress):
-            all_files = os.listdir(stage1_dir)
-            pass1_outputs_filtered = [os.path.join(stage1_dir, output) for output in all_files if "Instrumental" in output]
-            ensemble1_output = os.path.join(stage1_dir, f"{basename}_ensemble1.wav")
-            Second_Ensemble_args = [
-                "--audio_input", f"{pass1_outputs_filtered[0]}", f"{pass1_outputs_filtered[1]}", f"{pass1_outputs_filtered[2]}",
-                "--algorithm", f"{algorithm_ensemble_inst}",
-                "--is_normalization", "False",
-                "--wav_type_set", "PCM_16"
-                "--save_path", f"{ensemble1_output}"
-            ]
-            process_spectrogram(Second_Ensemble_args)
-        print(_("Processing of the first Ensemble is over!"))
+        ensemble = processInstEnsemble(stage1_dir, basename, algorithm_ensemble_inst, supress, 1)
         # Pass 2
         processed_models = []
-        pass2_outputs = []
         models_names = ["karokee_4band_v2_sn.pth", "UVR-MDX-NET-Inst_HQ_4.onnx", "Kim_Vocal_2.onnx"]
         for model_name in model_names:
             if model_name == "karokee_4band_v2_sn.pth":
-                with supress_output(supress):
-                    model_name_without_ext = model_name.split('.')[0]
-                    output_path = os.path.join(stage2_dir, f"{basename}_(Instrumental)_{model_name_without_ext}.flac")
-                    pass2_outputs.append(output_path)
-                    Vr = models.VrNetwork(name="karokee_4band_v2_sn", other_metadata={'aggressiveness': 0.05,'window_size': 320,'batch_size': 8,'is_tta': True},device=device, logger=None)
-                    res = Vr(ensemble1_output)
-                    instrumentals = res["instrumental"]
-                    af.write(f"{stage2_dir}/{basename}_karokee_4band_v2_sn.wav", instrumentals, Vr.sample_rate)
-                    torch.cuda.empty_cache()
-                    processed_models.append(model_name)
-                print(_(f"{basename} processing with {model_name_without_ext} is over!"))
+                processKarokeeInst(ensemble, basename, stage2_dir, model_name, device, supress)
             else:
-                with supress_output(supress):
-                    model_name_without_ext = model_name.split('.')[0]
-                    output_path = os.path.join(stage2_dir, f"{basename}_(Instrumental)_{model_name_without_ext}.flac")
-                    pass2_outputs.append(output_path)
-                    MDX = models.MDX(name=f"{model_name}", other_metadata={'segment_size': 256,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
-                    res = MDX(input_file)
-                    instrumentals = res["instrumental"]
-                    af.write(f"{stage2_dir}/{input_file}_{model_name}.wav", instrumentals, MDX.sample_rate)
-                    torch.cuda.empty_cache()
-                    processed_models.append(model_name)
-                print(_(f"{basename} processing with {model_name_without_ext} is over!"))
+                processOtherModels(ensemble, basename, stage2_dir, model_name, device, supress)
             models_names = [model for model in models_names if model not in processed_models]
 
-        # Third Ensemble
-        with supress_output(supress):
-            all_files = os.listdir(stage2_dir)
-            pass2_outputs_filtered = [os.path.join(stage2_dir, output) for output in all_files if "Instrumental" in output]
-            final_output_path = os.path.join(final_output_dir, f"{basename}_final_output.wav")
-            process_spectrogram(
-                audio_input=f"{' '.join(pass2_outputs_filtered)}",
-                algorithm=algorithm_ensemble_inst,
-                is_normalization=False,
-                wav_type_set="PCM_16",
-                save_path=final_output_path
-            )
-        print(_("Processing of the second Ensemble is over!"))
+        processed = processInstEnsemble(stage2_dir, basename, algorithm_ensemble_inst, supress, 2)
     print(_("Instrumental processing completed."))
     if instrumental_ensemble == True:
-        return [output for output in final_output_path if "instrumental" in output]
+        return processed
     else:
-        return [output for output in stage1_dir if "instrumental" in output]
+        return get_last_modified_file(stage1_dir)
+
+def process_5HP_Karaoke(input_file, basename, stage1_dir, model_name, device, supress):
+    with supress_output(supress):
+        model_name_without_ext = model_name.split('.')[0]
+        Vr = models.VrNetwork(name="5_HP-Karaoke-UVR", other_metadata={'normaliz': False, 'aggressiveness': 0.05,'window_size': 320,'batch_size': 8,'is_tta': True},device=device, logger=None)
+        res = Vr(input_file)
+        instrumentals = res["instrumental"]
+        af.write(f"{stage1_dir}/{basename}_{model_name_without_ext}.wav", instrumentals, Vr.sample_rate)
+        torch.cuda.empty_cache()
+        processed_models.append(model_name)
+    print(_(f"{basename} processing with {model_name_without_ext} is over!"))
+
+def processInstHQ4(input_file, basename, stage1_dir, model_name, device, supress):
+    with supress_output(supress):
+        model_name_without_ext = model_name.split('.')[0]
+        MDX = models.MDX(name="UVR-MDX-NET-Inst_HQ_4", other_metadata={'segment_size': 256,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
+        res = MDX(input_file)
+        instrumentals = res["instrumental"]
+        af.write(f"{stage1_dir}/{basename}_{model_name_without_ext}.wav", instrumentals, MDX.sample_rate)
+        torch.cuda.empty_cache()
+        processed_models.append(model_name)
+    print(_(f"{basename} processing with {model_name_without_ext} is over!"))
+
+def processHtDemucs(input_file, basename, stage1_dir, model_name, device, supress):
+    with supress_output(supress):
+        model_name_without_ext = model_name.split('.')[0]
+        demucs = models.Demucs(name="htdemucs",other_metadata={"segment":2, "split":True},device=device, logger=None)
+        res = demucs(input_file)
+        drum = res["drums"]
+        bass = res["bass"]
+        other = res["other"]
+        af.write(f"{stage1_dir}/{basename}_(Drums)_htdemucs.wav", drum, demucs.sample_rate)
+        af.write(f"{stage1_dir}/{basename}_(Bass)_htdemucs.wav", bass, demucs.sample_rate)
+        af.write(f"{stage1_dir}/{basename}_(Other)_htdemucs.wav", other, demucs.sample_rate)
+        torch.cuda.empty_cache()
+        audio_files = [
+            os.path.join(stage1_dir, f"{basename}_(Drums)_htdemucs.wav"),
+            os.path.join(stage1_dir, f"{basename}_(Bass)_htdemucs.wav"),
+            os.path.join(stage1_dir, f"{basename}_(Other)_htdemucs.wav")
+        ]
+
+        combined_audio = AudioSegment.from_file(audio_files[0], format="flac")
+
+        for audio_file in audio_files[1:]:
+            audio = AudioSegment.from_file(audio_file, format="flac")
+            combined_audio = combined_audio.overlay(audio)
+
+        combined_audio.export(f"{stage1_dir}/{basename}_demucs_(Instrumental).flac", format="flac")
+
+        for audio_file in audio_files:
+            os.remove(audio_file)
+        processed_models.append(model_name)
+    print(_(f"{basename} processing with {model_name_without_ext} is over!"))
+
+def processInstEnsemble(stage1_dir, basename, algorithm_ensemble_inst, supress, number):
+    with supress_output(supress):
+        all_files = os.listdir(stage1_dir)
+        pass1_outputs_filtered = [os.path.join(stage1_dir, output) for output in all_files if "Instrumental" in output]
+        ensemble1_output = os.path.join(stage1_dir, f"{basename}_ensemble_{number}.wav")
+        Second_Ensemble_args = [
+            "--audio_input", f"{pass1_outputs_filtered[0]}", f"{pass1_outputs_filtered[1]}", f"{pass1_outputs_filtered[2]}",
+            "--algorithm", f"{algorithm_ensemble_inst}",
+            "--is_normalization", "False",
+            "--wav_type_set", "PCM_16"
+            "--save_path", f"{ensemble1_output}"
+        ]
+        process_spectrogram(Second_Ensemble_args)
+    print(_(f"Processing of the {number} Ensemble is over!"))
+    return emsemble1_output
+
+def processKarokeeInst(ensemble1_output, basename, stage2_dir, model_name, device, supress):
+    with supress_output(supress):
+        model_name_without_ext = model_name.split('.')[0]
+        output_path = os.path.join(stage2_dir, f"{basename}_(Instrumental)_{model_name_without_ext}.flac")
+        pass2_outputs.append(output_path)
+        Vr = models.VrNetwork(name="karokee_4band_v2_sn", other_metadata={'aggressiveness': 0.05,'window_size': 320,'batch_size': 8,'is_tta': True},device=device, logger=None)
+        res = Vr(ensemble1_output)
+        instrumentals = res["instrumental"]
+        af.write(f"{stage2_dir}/{basename}_karokee_4band_v2_sn.wav", instrumentals, Vr.sample_rate)
+        torch.cuda.empty_cache()
+        processed_models.append(model_name)
+    print(_(f"{basename} processing with {model_name_without_ext} is over!"))
+
+def processOtherModels(input_file, basename, stage2_dir, model_name, device, supress):
+    with supress_output(supress):
+        model_name_without_ext = model_name.split('.')[0]
+        output_path = os.path.join(stage2_dir, f"{basename}_(Instrumental)_{model_name_without_ext}.flac")
+        pass2_outputs.append(output_path)
+        MDX = models.MDX(name=f"{model_name}", other_metadata={'segment_size': 256,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
+        res = MDX(input_file)
+        instrumentals = res["instrumental"]
+        af.write(f"{stage2_dir}/{input_file}_{model_name}.wav", instrumentals, MDX.sample_rate)
+        torch.cuda.empty_cache()
+        processed_models.append(model_name)
+    print(_(f"{basename} processing with {model_name_without_ext} is over!"))
 
 @click.command("rvc_ai")
 @click.option('--input_path')
@@ -402,7 +389,7 @@ def rvc_ai(input_path, output_path, rvc_model_name, rvc_model_name_ext, model_de
     print("Downloading model...")
     with supress_output(supress):
         filename = rvc_model_name
-        download_path = str(Path(model_destination_folder)) / filename + rvc_model_name_ext
+        download_path = str(Path(model_destination_folder / filename)) + rvc_model_name_ext
         if "drive.google.com" in f"{rvc_model_link}":
             gdown.download(rvc_model_link, str(download_path), quiet=False)
         else:
