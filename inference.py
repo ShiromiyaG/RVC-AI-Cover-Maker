@@ -190,14 +190,15 @@ def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_in
         with supress_output(supress):
             lista.append(get_last_modified_file(no_inst_folder, "Vocals"))
             ensemble_voc = os.path.join(no_inst_folder, f"{basename}_ensemble1.wav")
-            First_Ensemble_args = [
-                "--audio_input", f"{lista[0]}", f"{lista[1]}",
-                "--algorithm", f"{algorithm_ensemble_vocals}",
-                "--is_normalization", "False",
-                "--wav_type_set", "PCM_16"
-                "--save_path", f"{ensemble_voc}"
-            ]
-            process_spectrogram(First_Ensemble_args)
+            ensemble_inputs(
+                audio_input=f"{' '.join(lista)}",
+                algorithm=algorithm_ensemble_vocals,
+                is_normalization=False,
+                wav_type_set="PCM_16",
+                save_path=ensemble_voc
+                is_wave=False
+                is_array=False
+            )
             filename_path = get_last_modified_file(no_inst_folder)
             no_inst_output = os.path.join(no_inst_folder, filename_path)
     with supress_output(supress):
@@ -319,14 +320,15 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
             all_files = os.listdir(stage1_dir)
             pass1_outputs_filtered = [os.path.join(stage1_dir, output) for output in all_files if "Instrumental" in output]
             ensemble1_output = os.path.join(stage1_dir, f"{basename}_ensemble1.wav")
-            Second_Ensemble_args = [
-                "--audio_input", f"{pass1_outputs_filtered[0]}", f"{pass1_outputs_filtered[1]}", f"{pass1_outputs_filtered[2]}",
-                "--algorithm", f"{algorithm_ensemble_inst}",
-                "--is_normalization", "False",
-                "--wav_type_set", "PCM_16"
-                "--save_path", f"{ensemble1_output}"
-            ]
-            process_spectrogram(Second_Ensemble_args)
+            ensemble_inputs(
+                audio_input=f"{' '.join(pass1_outputs_filtered)}",
+                algorithm=algorithm_ensemble_inst,
+                is_normalization=False,
+                wav_type_set="PCM_16",
+                save_path=ensemble1_output
+                is_wave=False
+                is_array=False
+            )
         print(_("Processing of the first Ensemble is over!"))
         # Pass 2
         processed_models = []
@@ -364,12 +366,14 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
             all_files = os.listdir(stage2_dir)
             pass2_outputs_filtered = [os.path.join(stage2_dir, output) for output in all_files if "Instrumental" in output]
             final_output_path = os.path.join(final_output_dir, f"{basename}_final_output.wav")
-            process_spectrogram(
+            ensemble_inputs(
                 audio_input=f"{' '.join(pass2_outputs_filtered)}",
                 algorithm=algorithm_ensemble_inst,
                 is_normalization=False,
                 wav_type_set="PCM_16",
                 save_path=final_output_path
+                is_wave=False
+                is_array=False
             )
         print(_("Processing of the second Ensemble is over!"))
     print(_("Instrumental processing completed."))
