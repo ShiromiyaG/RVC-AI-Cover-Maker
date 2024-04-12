@@ -6,7 +6,7 @@ import click
 import subprocess
 import contextlib
 import sys
-from  glob import glob
+from glob import glob
 from pydub import AudioSegment
 from rvccli import run_infer_script
 from musicsouceseparationtraining import proc_file
@@ -80,7 +80,8 @@ def cli():
 @click.command("download_yt")
 @click.option('--link')
 @click.option('--supress')
-def download_yt(link, supress):
+@click.option('--language')
+def download_yt(link, supress, language):
     options = {
         'format': 'bestaudio/best',
         'postprocessors': [{
@@ -91,11 +92,17 @@ def download_yt(link, supress):
         'outtmpl': '/content/musicas/arquivos-originais/%(title)s.%(ext)s',
         'quiet': True
     }
-    print(_("Downloading Youtube music..."))
+    if language == "BR":
+        print("Fazendo download da música do Deezer...")
+    else:
+        print("Downloading Youtube music...")
     with supress_output(supress):
         with YoutubeDL(options) as ydl:
             ydl.download([link])
-    print(_("Download of Youtube music complete!"))
+    if language == "BR":
+        print("Download da música do Deezer completo!")
+    else:
+        print("Download of Youtube music complete!")
 
 @click.command("download_deezer")
 @click.option('--link')
@@ -104,7 +111,7 @@ def download_yt(link, supress):
 @click.option('--arl')
 @click.option('--supress')
 def download_deezer(link, bf_secret, track_url_key, arl, supress):
-    print(_("Downloading Deezer music..."))
+    print("Downloading Deezer music...")
     with supress_output(supress):
         with open('/content/OrpheusDL/config/settings.json', 'r') as file:
             data = json.load(file)
@@ -114,7 +121,7 @@ def download_deezer(link, bf_secret, track_url_key, arl, supress):
         with open('/content/OrpheusDL/config/settings.json', 'w') as file:
             json.dump(data, file, indent=4)
         subprocess.run(["python", "OrpheusDL/orpheus.py", link])
-    print(_("Download of Deezer complete!"))
+    print("Download of Deezer complete!")
 
 @click.command("remove_backing_vocals_and_reverb")
 @click.option('--input_file')
@@ -133,7 +140,7 @@ def remove_backing_vocals_and_reverb(input_file, no_back_folder, output_folder, 
         torch.cuda.empty_cache()
         filename_path = get_last_modified_file(no_back_folder)
         no_back_output = os.path.join(no_back_folder, filename_path)
-    print(_(f"{basename} processing with karokee_4band_v2_sn is over!"))
+    print(f"{basename} processing with karokee_4band_v2_sn is over!")
     with supress_output(supress):
         # Reverb_HQ
         MDX = models.MDX(name="Reverb_HQ",  other_metadata={'segment_size': 384,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
@@ -142,9 +149,9 @@ def remove_backing_vocals_and_reverb(input_file, no_back_folder, output_folder, 
             no_reverb = res["no reverb"]
             af.write(f"{output_folder}/{basename}_Reverb_HQ.wav",  no_reverb, MDX.sample_rate)
         torch.cuda.empty_cache()
-    print(_(f"{basename} processing with Reverb HQ is over!"))
-    print(_("Vocal processing completed."))
-    print(_("Separation complete!"))
+    print(f"{basename} processing with Reverb HQ is over!")
+    print("Vocal processing completed.")
+    print("Separation complete!")
     return [output for output in output_folder if "Reverb_HQ" in output]
 
 @click.command("separate_vocals")
@@ -157,7 +164,7 @@ def remove_backing_vocals_and_reverb(input_file, no_back_folder, output_folder, 
 @click.option('--device')
 @click.option('--supress')
 def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_inst_folder, no_back_folder, output_folder, device, supress):
-    print(_("Separating vocals..."))
+    print("Separating vocals...")
     with supress_output(supress):
         basename = os.path.basename(input_file).split(".")[0]
         # MDX23C-8KFFT-InstVoc_HQ
@@ -174,7 +181,7 @@ def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_in
         extension = Path(file).suffix
         new_name = f"{base_name}MDX23C-8KFFT-InstVoc_HQ{extension}"
         os.rename(file, os.path.join(os.path.dirname(file), new_name))
-    print(_(f"{basename} processing with MDX23C-8KFFT-InstVoc_HQ is over!"))
+    print(f"{basename} processing with MDX23C-8KFFT-InstVoc_HQ is over!")
     # Ensemble Vocals
     if vocal_ensemble:
         with supress_output(supress):
@@ -188,7 +195,7 @@ def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_in
                 "--store_dir", f"{no_inst_folder}",
             ]
             proc_file(BSRoformer_args)
-        print(_(f"{basename} processing with BSRoformer is over!"))
+        print(f"{basename} processing with BSRoformer is over!")
         with supress_output(supress):
             lista.append(get_last_modified_file(no_inst_folder, "Vocals"))
             ensemble_voc = os.path.join(no_inst_folder, f"{basename}_ensemble1.wav")
@@ -202,7 +209,7 @@ def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_in
                 is_array=False,
             )
             no_inst_output = ensemble_voc
-        print(_("Processing of the first Ensemble is over!"))
+        print("Processing of the first Ensemble is over!")
     with supress_output(supress):
         # karokee_4band_v2_sn
         Vr = models.VrNetwork(name="karokee_4band_v2_sn", other_metadata={'normaliz': False, 'aggressiveness': 0.05,'window_size': 320,'batch_size': 8,'is_tta': True},device=device, logger=None)
@@ -212,7 +219,7 @@ def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_in
             af.write(f"{no_back_folder}/{basename}_karokee_4band_v2_sn.wav", vocals, Vr.sample_rate)
         torch.cuda.empty_cache()
         no_back_output = get_last_modified_file(no_back_folder)
-    print(_(f"{basename} processing with karokee_4band_v2_sn is over!"))
+    print(f"{basename} processing with karokee_4band_v2_sn is over!")
     with supress_output(supress):
         # Reverb_HQ
         MDX = models.MDX(name="Reverb_HQ",  other_metadata={'segment_size': 384,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
@@ -221,10 +228,10 @@ def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_in
             no_reverb = res["no reverb"]
             af.write(f"{output_folder}/{basename}_Reverb_HQ.wav",  no_reverb, MDX.sample_rate)
         torch.cuda.empty_cache()
-    print(_(f"{basename} processing with Reverb HQ is over!"))
-    print(_("Vocal processing completed."))
-    print(_("Separation complete!"))
-    return [output for output in output_folder if "Reverb_HQ" in output]
+    print(f"{basename} processing with Reverb HQ is over!")
+    print("Vocal processing completed.")
+    print("Separation complete!")
+    return get_last_modified_file(output_folder)
 
 @click.command("separate_instrumentals")
 @click.option('--input_file')
@@ -236,7 +243,7 @@ def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_in
 @click.option('--device')
 @click.option('--supress')
 def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble_inst, stage1_dir, stage2_dir, final_output_dir, device, supress):
-    print(_("Separating instrumentals..."))
+    print("Separating instrumentals...")
     basename = os.path.basename(input_file).split(".")[0]
     # Pass 1
     if instrumental_ensemble:
@@ -249,20 +256,20 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
                     Vr = models.VrNetwork(name="5_HP-Karaoke-UVR", other_metadata={'normaliz': False, 'aggressiveness': 0.05,'window_size': 320,'batch_size': 8,'is_tta': True},device=device, logger=None)
                     res = Vr(input_file)
                     instrumentals = res["instrumental"]
-                    af.write(f"{stage1_dir}/{basename}_{model_name_without_ext}_(Instrumental).wav", instrumentals, Vr.sample_rate)
+                    af.write(f"{stage1_dir}/{basename}_{model_name_without_ext}Instrumental).wav", instrumentals, Vr.sample_rate)
                     torch.cuda.empty_cache()
                     processed_models.append(model_name)
-                print(_(f"{basename} processing with {model_name_without_ext} is over!"))
+                print(f"{basename} processing with {model_name_without_ext} is over!")
             if model_name == "UVR-MDX-NET-Inst_HQ_4.onnx":
                 with supress_output(supress):
                     model_name_without_ext = model_name.split('.')[0]
                     MDX = models.MDX(name="UVR-MDX-NET-Inst_HQ_4", other_metadata={'segment_size': 256,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
                     res = MDX(input_file)
                     instrumentals = res["instrumental"]
-                    af.write(f"{stage1_dir}/{basename}_{model_name_without_ext}_(Instrumental).wav", instrumentals, MDX.sample_rate)
+                    af.write(f"{stage1_dir}/{basename}_{model_name_without_ext}Instrumental).wav", instrumentals, MDX.sample_rate)
                     torch.cuda.empty_cache()
                     processed_models.append(model_name)
-                print(_(f"{basename} processing with {model_name_without_ext} is over!"))
+                print(f"{basename} processing with {model_name_without_ext} is over!")
             if model_name == "htdemucs.yaml":
                 with supress_output(supress):
                     model_name_without_ext = model_name.split('.')[0]
@@ -292,7 +299,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
                     for audio_file in audio_files:
                         os.remove(audio_file)
                     processed_models.append(model_name)
-                print(_(f"{basename} processing with {model_name_without_ext} is over!"))
+                print(f"{basename} processing with {model_name_without_ext} is over!")
         models_names = [model for model in models_names if model not in processed_models]
     else:
         with supress_output(supress):
@@ -305,7 +312,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
             torch.cuda.empty_cache()
             processed_models.append(model_name)
             final_output_path = os.path.join(stage1_dir, f"{basename}_{model_name_without_ext}.flac")
-        print(_(f"{basename} processing with {model_name_without_ext} is over!"))
+        print(f"{basename} processing with {model_name_without_ext} is over!")
     # Second Ensemble
     if instrumental_ensemble:
         with supress_output(supress):
@@ -321,7 +328,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
                 is_wave=False,
                 is_array=False,
             )
-        print(_("Processing of the first Ensemble is over!"))
+        print("Processing of the first Ensemble is over!")
         # Pass 2
         processed_models = []
         pass2_outputs = []
@@ -338,7 +345,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
                     af.write(f"{stage2_dir}/{basename}_karokee_4band_v2_sn_(Instrumental).wav", instrumentals, Vr.sample_rate)
                     torch.cuda.empty_cache()
                     processed_models.append(model_name)
-                print(_(f"{basename} processing with {model_name_without_ext} is over!"))
+                print(f"{basename} processing with {model_name_without_ext} is over!")
             else:
                 with supress_output(supress):
                     model_name_without_ext = model_name.split('.')[0]
@@ -350,7 +357,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
                     af.write(f"{stage2_dir}/{basename}_{model_name}_(Instrumental).wav", instrumentals, MDX.sample_rate)
                     torch.cuda.empty_cache()
                     processed_models.append(model_name)
-                print(_(f"{basename} processing with {model_name_without_ext} is over!"))
+                print(f"{basename} processing with {model_name_without_ext} is over!")
             models_names = [model for model in models_names if model not in processed_models]
 
         # Third Ensemble
@@ -367,12 +374,12 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
                 is_wave=False,
                 is_array=False,
             )
-        print(_("Processing of the second Ensemble is over!"))
-    print(_("Instrumental processing completed."))
+        print("Processing of the second Ensemble is over!")
+    print("Instrumental processing completed.")
     if instrumental_ensemble == True:
-        return [output for output in final_output_path if "instrumental" in output]
+        get_last_modified_file(final_output_dir)
     else:
-        return [output for output in stage1_dir if "Inst-HQ4" in output]
+        get_last_modified_file(stage1_dir)
 
 @click.command("rvc_ai")
 @click.option('--input_path')
@@ -394,11 +401,11 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
 @click.option('--clean_strength')
 @click.option('--export_format')
 @click.option('--supress')
-def rvc_ai(input_path, output_path, rvc_model_name, rvc_model_name_ext, model_destination_folder, rvc_model_link, pitch, filter_radius, index_rate, hop_length, rms_mix_rate, protect, autotune, f0method, split_audio, clean_audio, clean_strength, export_format, supress):
-    print(_("Downloading model..."))
+def rvc_ai(input_path="Live and Learn - Sonic Adventure 2 [OST]_Reverb_HQ.wav", output_path="./teste.wav", rvc_model_name="andre-matos-ritual-v2", rvc_model_name_ext=".zip", model_destination_folder="./content/RVC_CLI/logs", rvc_model_link="https://huggingface.co/ShiromiyaGamer/modelos-canal/resolve/main/andre-matos-ritual-v2.zip", pitch=0, filter_radius=3, index_rate=0.7, hop_length=128, rms_mix_rate=0.8, protect=0.5, autotune=False, f0method="rmvpe", split_audio=False, clean_audio=False, clean_strength=0, export_format="flac", supress=False):
+    print("Downloading model...")
     with supress_output(supress):
         filename = rvc_model_name
-        download_path = os.path.join(model_destination_folder, filename + rvc_model_name_ext)
+        download_path = os.path.join(f"{model_destination_folder}/" + filename + rvc_model_name_ext)
         if "drive.google.com" in f"{rvc_model_link}":
             gdown.download(rvc_model_link, str(download_path), quiet=False)
         else:
@@ -406,10 +413,10 @@ def rvc_ai(input_path, output_path, rvc_model_name, rvc_model_name_ext, model_de
             with open(download_path, 'wb') as file:
                 file.write(response.content)
         if str(download_path).endswith(".zip"):
-            Path(f'/content/RVC_CLI/logs/{rvc_model_name}').mkdir(parents=True, exist_ok=True)
+            Path(f'./content/RVC_CLI/logs/{rvc_model_name}').mkdir(parents=True, exist_ok=True)
             with zipfile.ZipFile(download_path, 'r') as zip_ref:
-                zip_ref.extractall(f"/content/RVC_CLI/logs/{rvc_model_name}")
-    print(_("Download complete."))
+                zip_ref.extractall(f"./content/RVC_CLI/logs/{rvc_model_name}")
+    print("Download complete.")
     with supress_output(supress):
         current_dir = "/content/RVC_CLI"
         model_folder = os.path.join(current_dir, f"logs/{rvc_model_name}")
@@ -417,9 +424,9 @@ def rvc_ai(input_path, output_path, rvc_model_name, rvc_model_name_ext, model_de
         if not os.path.exists(model_folder):
             raise FileNotFoundError(f"Model directory not found: {model_folder}")
 
-        files_in_folder = os.listdir(f"{model_destination_folder}/{rvc_model_name}")
-        pth_file = find_files(model_destination_folder, ".pth")
-        index_file = find_files(model_destination_folder, ".index")
+        files_in_folder = f"{model_destination_folder}/{rvc_model_name}"
+        pth_file = find_files(files_in_folder, ".pth")
+        index_file = find_files(files_in_folder, ".index")
 
         if pth_file is None or index_file is None:
             raise FileNotFoundError("No model found.")
@@ -444,7 +451,7 @@ def rvc_ai(input_path, output_path, rvc_model_name, rvc_model_name_ext, model_de
             clean_strength=clean_strength,
             export_format=export_format,
         )
-    print(_("RVC AI processing complete!"))
+    print("RVC AI processing complete!")
     return output_path.replace(".flac", f".{export_format.lower()}")
 
 @click.command("reverb")
@@ -457,10 +464,6 @@ def rvc_ai(input_path, output_path, rvc_model_name, rvc_model_name_ext, model_de
 @click.option('--supress')
 def reverb(audio_path, reverb_size, reverb_wetness, reverb_dryness, reverb_damping, output_path, supress):
     with supress_output(supress):
-        reverb_size = float(reverb_size)
-        reverb_dry = float(reverb_dry)
-        reverb_wet = float(reverb_wet)
-        reverb_damping = float(reverb_damping)
         add_audio_effects(
             audio_path=audio_path,
             reverb_size=reverb_size,
@@ -535,7 +538,7 @@ def ensemble(input_folder, algorithm_ensemble, output_path, supress):
 @click.option('--device')
 @click.option('--supress')
 def cpu_mode(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_inst_folder, no_back_folder, output_folder, device, supress):
-    print(_("Separating vocals..."))
+    print("Separating vocals...")
     with supress_output(supress):
         basename = os.path.basename(input_file).split(".")[0]
         # Voc_FT
@@ -543,7 +546,7 @@ def cpu_mode(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_inst_fold
         res = MDX(input_file)
         vocals = res["vocals"]
         af.write(f"{no_inst_folder}/{basename}_Voc_FT_(Vocals).wav",  vocals, MDX.sample_rate)
-    print(_(f"{basename} processing with Voc_FT is over!"))
+    print(f"{basename} processing with Voc_FT is over!")
     with supress_output(supress):
         # karokee_4band_v2_sn
         MDX = models.MDX(name="UVR_MDXNET_KARA_2", other_metadata={'segment_size': 256,'overlap': 0.25,'mdx_batch_size': 10,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
@@ -551,16 +554,16 @@ def cpu_mode(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_inst_fold
         vocals = res["vocals"]
         af.write(f"{no_back_folder}/{basename}_UVR_MDXNET_KARA_2.wav", vocals, Vr.sample_rate)
         no_back_output = get_last_modified_file(no_back_folder)
-    print(_(f"{basename} processing with UVR_MDXNET_KARA_2 is over!"))
+    print(f"{basename} processing with UVR_MDXNET_KARA_2 is over!")
     with supress_output(supress):
         # Reverb_HQ
         MDX = models.MDX(name="Reverb_HQ",  other_metadata={'segment_size': 256,'overlap': 0.25,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
         res = MDX(no_back_output)
         no_reverb = res["no reverb"]
         af.write(f"{output_folder}/{basename}_Reverb_HQ.wav",  no_reverb, MDX.sample_rate)
-    print(_(f"{basename} processing with Reverb HQ is over!"))
-    print(_("Vocal processing completed."))
-    print(_("Separation complete!"))
+    print(f"{basename} processing with Reverb HQ is over!")
+    print("Vocal processing completed.")
+    print("Separation complete!")
     output = []
     output.append(get_last_modified_file(output_folder))
     with supress_output(supress):
@@ -569,7 +572,7 @@ def cpu_mode(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_inst_fold
         res = MDX(no_back_output)
         inst = res["instrumental"]
         af.write(f"{output_folder}/{basename}_Reverb_HQ.wav",  inst, MDX.sample_rate)
-    print(_(f"{basename} processing with Inst_HQ_4 is over!"))
+    print(f"{basename} processing with Inst_HQ_4 is over!")
     output.append(get_last_modified_file(output_folder))
     return output
 
