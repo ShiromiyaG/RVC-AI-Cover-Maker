@@ -30,9 +30,34 @@
                 "https://github.com/TRvlvr/model_repo/releases/download/all_public_uvr_models/UVR-MDX-NET-Inst_HQ_4.onnx"
             ]
         },
+        "Kim_Vocal_2":{
+            "model_path":[
+                "https://github.com/TRvlvr/model_repo/releases/download/all_public_uvr_models/Kim_Vocal_2.onnx"
+            ]
+        },
+        "UVR_MDXNET_KARA_2":{
+            "model_path":[
+                "https://github.com/TRvlvr/model_repo/releases/download/all_public_uvr_models/UVR_MDXNET_KARA_2.onnx"
+            ]
+        },
+        "UVR-MDX-NET-Inst_HQ_2":{
+            "model_path":[
+                "https://github.com/TRvlvr/model_repo/releases/download/all_public_uvr_models/Kim_Vocal_2.onnx"
+            ]
+        },
+        "Kim_Inst":{
+            "model_path":[
+                "https://github.com/TRvlvr/model_repo/releases/download/all_public_uvr_models/Kim_Inst.onnx"
+            ]
+        },
         "Reverb_HQ":{
             "model_path":[
                 "https://github.com/TRvlvr/model_repo/releases/download/all_public_uvr_models/Reverb_HQ_By_FoxJoy.onnx"
+            ]
+        },
+        "Voc_FT":{
+            "model_path":[
+                "https://github.com/TRvlvr/model_repo/releases/download/all_public_uvr_models/UVR-MDX-NET-Voc_FT.onnx"
             ]
         }
     },
