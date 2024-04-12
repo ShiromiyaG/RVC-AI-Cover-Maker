@@ -305,10 +305,10 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
         with supress_output(supress):
             model_name = "UVR-MDX-NET-Inst_HQ_4.onnx"
             model_name_without_ext = model_name.split('.')[0]
-            MDX = models.MDX(name="UVR-MDX-NET-Inst_HQ_4.onnx", other_metadata={'segment_size': 256,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
+            MDX = models.MDX(name="UVR-MDX-NET-Inst_HQ_4", other_metadata={'segment_size': 256,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
             res = MDX(input_file)
             instrumentals = res["instrumental"]
-            af.write(f"{stage1_dir}/{basename}_Inst-HQ4.wav", instrumentals, MDX.sample_rate)
+            af.write(f"{stage1_dir}/{basename}_Inst-HQ4_(instrumental).wav", instrumentals, MDX.sample_rate)
             torch.cuda.empty_cache()
             processed_models.append(model_name)
             final_output_path = os.path.join(stage1_dir, f"{basename}_{model_name_without_ext}.flac")
@@ -364,7 +364,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
         with supress_output(supress):
             all_files = os.listdir(stage2_dir)
             pass2_outputs_filtered = [os.path.join(stage2_dir, output) for output in all_files if "Instrumental" in output]
-            final_output_path = os.path.join(final_output_dir, f"{basename}_final_output.wav")
+            final_output_path = os.path.join(final_output_dir, f"{basename}_final_output_(instrumental).wav")
             ensemble_inputs(
                 audio_input=pass2_outputs_filtered,
                 algorithm=algorithm_ensemble_inst,
@@ -379,7 +379,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
     if instrumental_ensemble == True:
         return [output for output in final_output_path if "instrumental" in output]
     else:
-        return [output for output in stage1_dir if "instrumental" in output]
+        return [output for output in stage1_dir if "Inst-HQ4" in output]
 
 @click.command("rvc_ai")
 @click.option('--input_path')
@@ -531,6 +531,67 @@ def ensemble(input_folder, algorithm_ensemble, output_path, supress):
             is_wave=False,
             is_array=False,
         )
+
+@click.command("cpu_mode")
+@click.option('--input_file')
+@click.option('--no_inst_folder')
+@click.option('--no_back_folder')
+@click.option('--output_folder')
+@click.option('--device')
+@click.option('--supress')
+def cpu_mode(input_folder, no_inst_folder, no_back_folder, output_folder, device, supress):
+    print(_("Separating vocals..."))
+    with supress_output(supress):
+        basename = os.path.basename(input_file).split(".")[0]
+        # Conevert mp3 to flac
+        if input_file.endswith(".mp3"):
+            flac_filename = os.path.splitext(input_file)[0] + '.flac'
+            if not os.path.exists(flac_filename):
+                audio = AudioSegment.from_mp3(input_file)
+                audio.export(f"{flac_filename}", format="flac")
+                input_file = flac_filename
+        # Voc_FT
+        MDX = models.MDX(name="Voc_FT",  other_metadata={'segment_size': 256,'overlap': 0.25,'mdx_batch_size': 10,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
+        with supress_output():
+            res = MDX(no_back_output)
+            no_reverb = res["vocals"]
+            af.write(f"{no_inst_folder}/{basename}_Voc_FT_(Vocals).wav",  no_reverb, MDX.sample_rate)
+        torch.cuda.empty_cache()
+    print(_(f"{basename} processing with Voc_FT is over!"))
+    with supress_output(supress):
+        # karokee_4band_v2_sn
+        MDX = models.MDX(name="UVR_MDXNET_KARA_2", other_metadata={'segment_size': 256,'overlap': 0.25,'mdx_batch_size': 10,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
+        with supress_output():
+            res = Vr(no_inst_output)
+            vocals = res["vocals"]
+            af.write(f"{no_back_folder}/{basename}_UVR_MDXNET_KARA_2.wav", vocals, Vr.sample_rate)
+        torch.cuda.empty_cache()
+        no_back_output = get_last_modified_file(no_back_folder)
+    print(_(f"{basename} processing with UVR_MDXNET_KARA_2 is over!"))
+    with supress_output(supress):
+        # Reverb_HQ
+        MDX = models.MDX(name="Reverb_HQ",  other_metadata={'segment_size': 256,'overlap': 0.25,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
+        with supress_output():
+            res = MDX(no_back_output)
+            no_reverb = res["no reverb"]
+            af.write(f"{output_folder}/{basename}_Reverb_HQ.wav",  no_reverb, MDX.sample_rate)
+        torch.cuda.empty_cache()
+    print(_(f"{basename} processing with Reverb HQ is over!"))
+    print(_("Vocal processing completed."))
+    print(_("Separation complete!"))
+    output = []
+    output.append(get_last_modified_file(output_folder))
+    with supress_output(supress):
+        # Reverb_HQ
+        MDX = models.MDX(name="UVR-MDX-NET-Inst_HQ_4",  other_metadata={'segment_size': 256,'overlap': 0.25,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
+        with supress_output():
+            res = MDX(no_back_output)
+            no_reverb = res["instrumental"]
+            af.write(f"{output_folder}/{basename}_Reverb_HQ.wav",  no_reverb, MDX.sample_rate)
+        torch.cuda.empty_cache()
+    print(_(f"{basename} processing with Inst_HQ_4 is over!"))
+    output.append(get_last_modified_file(output_folder))
+    return output
 
 def main():
     cli.add_command(download_yt)
