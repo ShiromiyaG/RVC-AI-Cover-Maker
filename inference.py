@@ -10,7 +10,7 @@ from  glob import glob
 from pydub import AudioSegment
 from rvccli import run_infer_script
 from musicsouceseparationtraining import proc_file
-from shiromiyautils import process_spectrogram
+from shiromiyautils import ensemble_inputs
 from shiromiyautils import add_audio_effects
 from shiromiyautils import combine_audio
 import torch
@@ -191,16 +191,16 @@ def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_in
             lista.append(get_last_modified_file(no_inst_folder, "Vocals"))
             ensemble_voc = os.path.join(no_inst_folder, f"{basename}_ensemble1.wav")
             ensemble_inputs(
-                audio_input=f"{' '.join(lista)}",
+                audio_input=lista,
                 algorithm=algorithm_ensemble_vocals,
                 is_normalization=False,
                 wav_type_set="PCM_16",
-                save_path=ensemble_voc
-                is_wave=False
-                is_array=False
+                save_path=ensemble_voc,
+                is_wave=False,
+                is_array=False,
             )
-            filename_path = get_last_modified_file(no_inst_folder)
-            no_inst_output = os.path.join(no_inst_folder, filename_path)
+            no_inst_output = ensemble_voc
+        print(_("Processing of the first Ensemble is over!"))
     with supress_output(supress):
         # karokee_4band_v2_sn
         Vr = models.VrNetwork(name="karokee_4band_v2_sn", other_metadata={'normaliz': False, 'aggressiveness': 0.05,'window_size': 320,'batch_size': 8,'is_tta': True},device=device, logger=None)
@@ -209,8 +209,7 @@ def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_in
             vocals = res["vocals"]
             af.write(f"{no_back_folder}/{basename}_karokee_4band_v2_sn.wav", vocals, Vr.sample_rate)
         torch.cuda.empty_cache()
-        filename_path = get_last_modified_file(no_back_folder)
-        no_back_output = os.path.join(no_back_folder, filename_path)
+        no_back_output = get_last_modified_file(no_back_folder)
     print(_(f"{basename} processing with karokee_4band_v2_sn is over!"))
     with supress_output(supress):
         # Reverb_HQ
@@ -257,7 +256,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
                     Vr = models.VrNetwork(name="5_HP-Karaoke-UVR", other_metadata={'normaliz': False, 'aggressiveness': 0.05,'window_size': 320,'batch_size': 8,'is_tta': True},device=device, logger=None)
                     res = Vr(input_file)
                     instrumentals = res["instrumental"]
-                    af.write(f"{stage1_dir}/{basename}_{model_name_without_ext}.wav", instrumentals, Vr.sample_rate)
+                    af.write(f"{stage1_dir}/{basename}_{model_name_without_ext}_(Instrumental).wav", instrumentals, Vr.sample_rate)
                     torch.cuda.empty_cache()
                     processed_models.append(model_name)
                 print(_(f"{basename} processing with {model_name_without_ext} is over!"))
@@ -267,7 +266,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
                     MDX = models.MDX(name="UVR-MDX-NET-Inst_HQ_4", other_metadata={'segment_size': 256,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
                     res = MDX(input_file)
                     instrumentals = res["instrumental"]
-                    af.write(f"{stage1_dir}/{basename}_{model_name_without_ext}.wav", instrumentals, MDX.sample_rate)
+                    af.write(f"{stage1_dir}/{basename}_{model_name_without_ext}_(Instrumental).wav", instrumentals, MDX.sample_rate)
                     torch.cuda.empty_cache()
                     processed_models.append(model_name)
                 print(_(f"{basename} processing with {model_name_without_ext} is over!"))
@@ -321,24 +320,24 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
             pass1_outputs_filtered = [os.path.join(stage1_dir, output) for output in all_files if "Instrumental" in output]
             ensemble1_output = os.path.join(stage1_dir, f"{basename}_ensemble1.wav")
             ensemble_inputs(
-                audio_input=f"{' '.join(pass1_outputs_filtered)}",
+                audio_input=pass1_outputs_filtered,
                 algorithm=algorithm_ensemble_inst,
                 is_normalization=False,
                 wav_type_set="PCM_16",
-                save_path=ensemble1_output
-                is_wave=False
-                is_array=False
+                save_path=ensemble1_output,
+                is_wave=False,
+                is_array=False,
             )
         print(_("Processing of the first Ensemble is over!"))
         # Pass 2
         processed_models = []
         pass2_outputs = []
         models_names = ["karokee_4band_v2_sn.pth", "UVR-MDX-NET-Inst_HQ_4.onnx", "Kim_Vocal_2.onnx"]
-        for model_name in model_names:
+        for model_name in models_names:
             if model_name == "karokee_4band_v2_sn.pth":
                 with supress_output(supress):
                     model_name_without_ext = model_name.split('.')[0]
-                    output_path = os.path.join(stage2_dir, f"{basename}_(Instrumental)_{model_name_without_ext}.flac")
+                    output_path = os.path.join(stage2_dir, f"{basename}_{model_name_without_ext}_(Instrumental).wav")
                     pass2_outputs.append(output_path)
                     Vr = models.VrNetwork(name="karokee_4band_v2_sn", other_metadata={'aggressiveness': 0.05,'window_size': 320,'batch_size': 8,'is_tta': True},device=device, logger=None)
                     res = Vr(ensemble1_output)
@@ -350,12 +349,12 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
             else:
                 with supress_output(supress):
                     model_name_without_ext = model_name.split('.')[0]
-                    output_path = os.path.join(stage2_dir, f"{basename}_(Instrumental)_{model_name_without_ext}.flac")
+                    output_path = os.path.join(stage2_dir, f"{basename}_{model_name_without_ext}_(Instrumental).wav")
                     pass2_outputs.append(output_path)
-                    MDX = models.MDX(name=f"{model_name}", other_metadata={'segment_size': 256,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
+                    MDX = models.MDX(name=f"{model_name_without_ext}", other_metadata={'segment_size': 256,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
                     res = MDX(input_file)
                     instrumentals = res["instrumental"]
-                    af.write(f"{stage2_dir}/{input_file}_{model_name}.wav", instrumentals, MDX.sample_rate)
+                    af.write(f"{stage2_dir}/{basename}_{model_name}.wav", instrumentals, MDX.sample_rate)
                     torch.cuda.empty_cache()
                     processed_models.append(model_name)
                 print(_(f"{basename} processing with {model_name_without_ext} is over!"))
@@ -367,13 +366,13 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
             pass2_outputs_filtered = [os.path.join(stage2_dir, output) for output in all_files if "Instrumental" in output]
             final_output_path = os.path.join(final_output_dir, f"{basename}_final_output.wav")
             ensemble_inputs(
-                audio_input=f"{' '.join(pass2_outputs_filtered)}",
+                audio_input=pass2_outputs_filtered,
                 algorithm=algorithm_ensemble_inst,
                 is_normalization=False,
                 wav_type_set="PCM_16",
-                save_path=final_output_path
-                is_wave=False
-                is_array=False
+                save_path=final_output_path,
+                is_wave=False,
+                is_array=False,
             )
         print(_("Processing of the second Ensemble is over!"))
     print(_("Instrumental processing completed."))
@@ -406,7 +405,7 @@ def rvc_ai(input_path, output_path, rvc_model_name, rvc_model_name_ext, model_de
     print("Downloading model...")
     with supress_output(supress):
         filename = rvc_model_name
-        download_path = str(Path(model_destination_folder)) / filename + rvc_model_name_ext
+        download_path = str(Path(model_destination_folder / filename)) + rvc_model_name_ext
         if "drive.google.com" in f"{rvc_model_link}":
             gdown.download(rvc_model_link, str(download_path), quiet=False)
         else:
@@ -450,7 +449,7 @@ def rvc_ai(input_path, output_path, rvc_model_name, rvc_model_name_ext, model_de
             f0autotune=autotune,
             clean_audio=clean_audio,
             clean_strength=clean_strength,
-            export_format=export_format
+            export_format=export_format,
         )
     print(_("RVC AI processing complete!"))
     return output_path.replace(".flac", f".{export_format.lower()}")
@@ -475,7 +474,7 @@ def reverb(audio_path, reverb_size, reverb_wetness, reverb_dryness, reverb_dampi
             reverb_wet=reverb_wetness,
             reverb_dry=reverb_dryness,
             reverb_damping=reverb_damping,
-            output_path=output_path
+            output_path=output_path,
         )
     return
 
@@ -512,7 +511,7 @@ def mix_audio(audio_paths, output_path, main_gain, inst_gain, output_format, sup
             main_gain=main_gain,
             inst_gain=inst_gain,
             output_format=output_format,
-            supress=supress
+            supress=supress,
         )
 
 @click.command("ensemble")
@@ -523,12 +522,14 @@ def mix_audio(audio_paths, output_path, main_gain, inst_gain, output_format, sup
 def ensemble(input_folder, algorithm_ensemble, output_path, supress):
     with supress_output(supress):
         files = [file for file in os.listdir(input_folder) if os.path.isfile(os.path.join(input_folder, file))]
-        process_spectrogram(
-            audio_input=f"{' '.join(files)}",
+        ensemble_inputs(
+            audio_input=files,
             algorithm=algorithm_ensemble,
             is_normalization=False,
             wav_type_set="PCM_16",
-            save_path=output_path
+            save_path=output_path,
+            is_wave=False,
+            is_array=False,
         )
 
 def main():
