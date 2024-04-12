@@ -30,7 +30,15 @@ _ = gettext.gettext
 
 @click.command("activate_translation")
 def activate_translation():
-    locale.setlocale(locale.LC_ALL, 'pt_BR.utf8')
+    try:
+        locale.setlocale(locale.LC_ALL, 'pt_BR.utf-8')
+    except locale.Error:
+        print("Locale pt_BR.utf-8 not supported. Trying with pt_BR...")
+        try:
+            locale.setlocale(locale.LC_ALL, 'pt_BR')
+        except locale.Error:
+            print("Locale pt_BR not supported. Please install the required locale.")
+            return
     locale_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'locale')
     translation = gettext.translation('RVCAIMaker', locale_dir, ['pt_BR'])
     _ = translation.install()
