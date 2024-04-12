@@ -431,7 +431,7 @@ def rvc_ai(input_path="Live and Learn - Sonic Adventure 2 [OST]_Reverb_HQ.wav", 
         if pth_file is None or index_file is None:
             raise FileNotFoundError("No model found.")
 
-        output_path = "/content/output_rvc.flac"
+        output_path = "/content/output_rvc/output_rvc.flac"
         export_format = "FLAC"
         run_infer_script(
             f0up_key=pitch,
