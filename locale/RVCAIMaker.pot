@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-08 01:32-0300\n"
+"POT-Creation-Date: 2024-04-12 09:45-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,76 +17,99 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: inference.py:72
+#: inference.py:90
 msgid "Downloading Youtube music..."
 msgstr ""
 
-#: inference.py:75
+#: inference.py:94
 msgid "Download of Youtube music complete!"
 msgstr ""
 
-#: inference.py:91
+#: inference.py:103
 msgid "Downloading Deezer music..."
 msgstr ""
 
-#: inference.py:93
+#: inference.py:113
 msgid "Download of Deezer complete!"
 msgstr ""
 
-#: inference.py:104
-msgid "Separating vocals..."
-msgstr ""
-
-#: inference.py:123
-#, python-brace-format
-msgid "{basename} processing with MDX23C-8KFFT-InstVoc_HQ is over!"
-msgstr ""
-
-#: inference.py:136
-#, python-brace-format
-msgid "{basename} processing with BSRoformer is over!"
-msgstr ""
-
-#: inference.py:157
+#: inference.py:140 inference.py:226
 #, python-brace-format
 msgid "{basename} processing with karokee_4band_v2_sn is over!"
 msgstr ""
 
-#: inference.py:164
+#: inference.py:149 inference.py:235 inference.py:592
 #, python-brace-format
 msgid "{basename} processing with Reverb HQ is over!"
 msgstr ""
 
-#: inference.py:165
+#: inference.py:150 inference.py:236 inference.py:593
 msgid "Vocal processing completed."
 msgstr ""
 
-#: inference.py:166
+#: inference.py:151 inference.py:237 inference.py:594
 msgid "Separation complete!"
 msgstr ""
 
-#: inference.py:178
+#: inference.py:164 inference.py:556
+msgid "Separating vocals..."
+msgstr ""
+
+#: inference.py:188
+#, python-brace-format
+msgid "{basename} processing with MDX23C-8KFFT-InstVoc_HQ is over!"
+msgstr ""
+
+#: inference.py:202
+#, python-brace-format
+msgid "{basename} processing with BSRoformer is over!"
+msgstr ""
+
+#: inference.py:216 inference.py:344
+msgid "Processing of the first Ensemble is over!"
+msgstr ""
+
+#: inference.py:250
 msgid "Separating instrumentals..."
 msgstr ""
 
-#: inference.py:201 inference.py:210 inference.py:239 inference.py:251
-#: inference.py:282 inference.py:293
+#: inference.py:275 inference.py:285 inference.py:315 inference.py:328
+#: inference.py:361 inference.py:373
 #, python-brace-format
 msgid "{basename} processing with {model_name_without_ext} is over!"
 msgstr ""
 
-#: inference.py:266
-msgid "Processing of the first Ensemble is over!"
-msgstr ""
-
-#: inference.py:308
+#: inference.py:390
 msgid "Processing of the second Ensemble is over!"
 msgstr ""
 
-#: inference.py:310
+#: inference.py:391
 msgid "Instrumental processing completed."
 msgstr ""
 
-#: inference.py:384
+#: inference.py:418
+msgid "Downloading model..."
+msgstr ""
+
+#: inference.py:432
+msgid "Download complete."
+msgstr ""
+
+#: inference.py:467
 msgid "RVC AI processing complete!"
+msgstr ""
+
+#: inference.py:573
+#, python-brace-format
+msgid "{basename} processing with Voc_FT is over!"
+msgstr ""
+
+#: inference.py:583
+#, python-brace-format
+msgid "{basename} processing with UVR_MDXNET_KARA_2 is over!"
+msgstr ""
+
+#: inference.py:605
+#, python-brace-format
+msgid "{basename} processing with Inst_HQ_4 is over!"
 msgstr ""

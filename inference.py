@@ -18,6 +18,7 @@ import audiofile as af
 from uvr import models
 from pathlib import Path
 import gettext
+import locale
 import gdown
 import requests
 import zipfile
@@ -26,6 +27,14 @@ import json
 gettext.bindtextdomain('RVCAIMaker', 'locale')
 gettext.textdomain('RVCAIMaker')
 _ = gettext.gettext
+
+@click.command("activate_translation")
+def activate_translation():
+    locale.setlocale(locale.LC_ALL, 'pt_BR.utf8')
+    locale_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'locale')
+    translation = gettext.translation('RVCAIMaker', locale_dir, ['pt_BR'])
+    _ = translation.install()
+
 
 def get_last_modified_file(directory, filter=''):
   arquivos = glob(directory + "/*")
@@ -402,7 +411,7 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
 @click.option('--export_format')
 @click.option('--supress')
 def rvc_ai(input_path, output_path, rvc_model_name, rvc_model_name_ext, model_destination_folder, rvc_model_link, pitch, filter_radius, index_rate, hop_length, rms_mix_rate, protect, autotune, f0method, split_audio, clean_audio, clean_strength, export_format, supress):
-    print("Downloading model...")
+    print(_("Downloading model..."))
     with supress_output(supress):
         filename = rvc_model_name
         download_path = str(Path(model_destination_folder / filename)) + rvc_model_name_ext
@@ -416,7 +425,7 @@ def rvc_ai(input_path, output_path, rvc_model_name, rvc_model_name_ext, model_de
             Path(f'/content/RVC_CLI/logs/{rvc_model_name}').mkdir(parents=True, exist_ok=True)
             with zipfile.ZipFile(download_path, 'r') as zip_ref:
                 zip_ref.extractall(f"/content/RVC_CLI/logs/{rvc_model_name}"+".zip")
-    print("Download complete.")
+    print(_("Download complete."))
     with supress_output(supress):
         current_dir = "/content/RVC_CLI"
         model_folder = os.path.join(current_dir, f"logs/{rvc_model_name}")
@@ -594,6 +603,7 @@ def cpu_mode(input_folder, no_inst_folder, no_back_folder, output_folder, device
     return output
 
 def main():
+    cli.add_command(activate_translation)
     cli.add_command(download_yt)
     cli.add_command(download_deezer)
     cli.add_command(remove_backing_vocals_and_reverb)
