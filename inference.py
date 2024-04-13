@@ -415,30 +415,18 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
         get_last_modified_file(stage1_dir)
 
 @click.command("rvc_ai")
-@click.option('--input_path')
-@click.option('--output_path')
 @click.option('--rvc_model_name')
 @click.option('--rvc_model_name_ext')
 @click.option('--model_destination_folder')
 @click.option('--rvc_model_link')
-@click.option('--pitch')
-@click.option('--filter_radius')
-@click.option('--index_rate')
-@click.option('--hop_length')
-@click.option('--rms_mix_rate')
-@click.option('--protect')
-@click.option('--autotune')
-@click.option('--f0method')
-@click.option('--split_audio')
-@click.option('--clean_audio')
-@click.option('--clean_strength')
-@click.option('--export_format')
 @click.option('--supress')
 @click.option('--language')
-def rvc_ai(input_path, output_path, rvc_model_name, rvc_model_name_ext, model_destination_folder, rvc_model_link, pitch, filter_radius, index_rate, hop_length, rms_mix_rate, protect, autotune, f0method, split_audio, clean_audio, clean_strength, export_format, supress, language=None):
+def rvc_ai(rvc_model_name, rvc_model_name_ext, model_destination_folder, rvc_model_link, supress, language=None):
     if language == "BR":
         print("Processando com RVC AI...")
+        print("Baixando modelo...")
     else:
+        print("Processing with RVC AI...")
         print("Downloading model...")
     with supress_output(supress):
         filename = rvc_model_name
@@ -458,46 +446,6 @@ def rvc_ai(input_path, output_path, rvc_model_name, rvc_model_name_ext, model_de
         print("Download do modelo completo.")
     else:
         print("Download complete.")
-    with supress_output(supress):
-        current_dir = "/content/RVC_CLI"
-        model_folder = os.path.join(current_dir, f"logs/{rvc_model_name}")
-
-        if not os.path.exists(model_folder):
-            raise FileNotFoundError(f"Model directory not found: {model_folder}")
-
-        files_in_folder = f"{current_dir}/logs/{rvc_model_name}"
-        pth_file = find_files(files_in_folder, ".pth")
-        index_file = find_files(files_in_folder, ".index")
-
-        if pth_file is None or index_file is None:
-            raise FileNotFoundError("No model found.")
-
-        output_path = "/content/output_rvc/output_rvc.wav"
-        export_format = "WAV"
-        subprocess.run([
-            "python", "main.py", "infer",
-            "--f0up_key", pitch,
-            "--filter_radius", filter_radius,
-            "--index_rate", index_rate,
-            "--hop_length", hop_length,
-            "--rms_mix_rate", rms_mix_rate,
-            "--protect", protect,
-            "--f0autotune", autotune,
-            "--f0method", f0method,
-            "--input_path", input_path,
-            "--output_path", output_path,
-            "--pth_path", pth_file,
-            "--index_path", index_file,
-            "--split_audio", split_audio,
-            "--clean_audio", clean_audio,
-            "--clean_strength", clean_strength,
-            "--export_format", export_format
-        ])
-    if language == "BR":
-        print("Processamento com RVC AI completo!")
-    else:
-        print("RVC AI processing complete!")
-    return output_path.replace(".flac", f".{export_format.lower()}")
 
 @click.command("reverb")
 @click.option('--audio_path')
@@ -600,7 +548,7 @@ def cpu_mode(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_inst_fold
     with supress_output(supress):
         # karokee_4band_v2_sn
         MDX = models.MDX(name="UVR_MDXNET_KARA_2", other_metadata={'segment_size': 256,'overlap': 0.25,'mdx_batch_size': 10,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
-        res = Vr(no_inst_output)
+        res = MDX(no_inst_folder)
         vocals = res["vocals"]
         af.write(f"{no_back_folder}/{basename}_UVR_MDXNET_KARA_2.wav", vocals, Vr.sample_rate)
         no_back_output = get_last_modified_file(no_back_folder)
