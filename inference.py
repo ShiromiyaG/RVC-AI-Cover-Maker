@@ -8,7 +8,6 @@ import contextlib
 import sys
 from glob import glob
 from pydub import AudioSegment
-from rvccli import run_infer_script
 from musicsouceseparationtraining import proc_file
 from shiromiyautils import ensemble_inputs
 from shiromiyautils import add_audio_effects
@@ -59,7 +58,7 @@ def cli():
 @click.option('--link')
 @click.option('--supress')
 @click.option('--language')
-def download_yt(link, supress, language):
+def download_yt(link, supress, language=None):
     options = {
         'format': 'bestaudio/best',
         'postprocessors': [{
@@ -88,7 +87,8 @@ def download_yt(link, supress, language):
 @click.option('--track_url_key')
 @click.option('--arl')
 @click.option('--supress')
-def download_deezer(link, bf_secret, track_url_key, arl, supress):
+@click.option('--language')
+def download_deezer(link, bf_secret, track_url_key, arl, supress, language=None):
     if language == "BR":
         print("Fazendo download da música do Deezer...")
     else:
@@ -113,7 +113,8 @@ def download_deezer(link, bf_secret, track_url_key, arl, supress):
 @click.option('--output_folder')
 @click.option('--device')
 @click.option('--supress')
-def remove_backing_vocals_and_reverb(input_file, no_back_folder, output_folder, device, supress):
+@click.option('--language')
+def remove_backing_vocals_and_reverb(input_file, no_back_folder, output_folder, device, supress, language=None):
     with supress_output(supress):
         basename = os.path.basename(input_file).split(".")[0]
         Vr = models.VrNetwork(name="karokee_4band_v2_sn", other_metadata={'normaliz': False, 'aggressiveness': 0.05,'window_size': 320,'batch_size': 8,'is_tta': True},device=device, logger=None)
@@ -153,7 +154,8 @@ def remove_backing_vocals_and_reverb(input_file, no_back_folder, output_folder, 
 @click.option('--output_folder')
 @click.option('--device')
 @click.option('--supress')
-def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_inst_folder, no_back_folder, output_folder, device, supress):
+@click.option('--language')
+def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_inst_folder, no_back_folder, output_folder, device, supress, language=None):
     if language == "BR":
         print("Separando vocais...")
     else:
@@ -250,7 +252,8 @@ def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_in
 @click.option('--final_output_dir')
 @click.option('--device')
 @click.option('--supress')
-def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble_inst, stage1_dir, stage2_dir, final_output_dir, device, supress):
+@click.option('--language')
+def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble_inst, stage1_dir, stage2_dir, final_output_dir, device, supress, language=None):
     if language == "BR":
         print("Separando instrumentais...")
     else:
@@ -431,7 +434,8 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
 @click.option('--clean_strength')
 @click.option('--export_format')
 @click.option('--supress')
-def rvc_ai(input_path, output_path, rvc_model_name, rvc_model_name_ext=, model_destination_folder=, rvc_model_link, pitch, filter_radius, index_rate, hop_length, rms_mix_rate, protect, autotune, f0method, split_audio, clean_audio, clean_strength, export_format, supress):
+@click.option('--language')
+def rvc_ai(input_path, output_path, rvc_model_name, rvc_model_name_ext, model_destination_folder, rvc_model_link, pitch, filter_radius, index_rate, hop_length, rms_mix_rate, protect, autotune, f0method, split_audio, clean_audio, clean_strength, export_format, supress, language=None):
     if language == "BR":
         print("Processando com RVC AI...")
     else:
@@ -503,7 +507,8 @@ def rvc_ai(input_path, output_path, rvc_model_name, rvc_model_name_ext=, model_d
 @click.option('--reverb_damping')
 @click.option('--output_path')
 @click.option('--supress')
-def reverb(audio_path, reverb_size, reverb_wetness, reverb_dryness, reverb_damping, output_path, supress):
+@click.option('--language')
+def reverb(audio_path, reverb_size, reverb_wetness, reverb_dryness, reverb_damping, output_path, supress, language=None):
     with supress_output(supress):
         add_audio_effects(
             audio_path=audio_path,
@@ -520,7 +525,8 @@ def reverb(audio_path, reverb_size, reverb_wetness, reverb_dryness, reverb_dampi
 @click.option('--noise_db_limit')
 @click.option('--output_path')
 @click.option('--supress')
-def remove_noise(noise_db_limit, audio_path, output_path, supress):
+@click.option('--language')
+def remove_noise(noise_db_limit, audio_path, output_path, supress, language=None):
     with supress_output(supress):
         audio = AudioSegment.from_file(audio_path)
         db_limit = noise_db_limit
@@ -540,7 +546,8 @@ def remove_noise(noise_db_limit, audio_path, output_path, supress):
 @click.option('--inst_gain')
 @click.option('--output_format')
 @click.option('--supress')
-def mix_audio(audio_paths, output_path, main_gain, inst_gain, output_format, supress):
+@click.option('--language')
+def mix_audio(audio_paths, output_path, main_gain, inst_gain, output_format, supress, language=None):
     with supress_output(supress):
         combine_audio(
             audio_paths=audio_paths,
@@ -556,7 +563,8 @@ def mix_audio(audio_paths, output_path, main_gain, inst_gain, output_format, sup
 @click.option('--algorithm_ensemble')
 @click.option('--output_path')
 @click.option('--supress')
-def ensemble(input_folder, algorithm_ensemble, output_path, supress):
+@click.option('--language')
+def ensemble(input_folder, algorithm_ensemble, output_path, supress, language=None):
     with supress_output(supress):
         files = [file for file in os.listdir(input_folder) if os.path.isfile(os.path.join(input_folder, file))]
         ensemble_inputs(
@@ -578,7 +586,8 @@ def ensemble(input_folder, algorithm_ensemble, output_path, supress):
 @click.option('--output_folder')
 @click.option('--device')
 @click.option('--supress')
-def cpu_mode(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_inst_folder, no_back_folder, output_folder, device, supress):
+@click.option('--language')
+def cpu_mode(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_inst_folder, no_back_folder, output_folder, device, supress, language=None):
     print("Separating vocals...")
     with supress_output(supress):
         basename = os.path.basename(input_file).split(".")[0]
@@ -618,7 +627,6 @@ def cpu_mode(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_inst_fold
     return output
 
 def main():
-    cli.add_command(activate_translation)
     cli.add_command(download_yt)
     cli.add_command(download_deezer)
     cli.add_command(remove_backing_vocals_and_reverb)
