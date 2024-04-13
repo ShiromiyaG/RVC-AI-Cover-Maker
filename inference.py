@@ -488,21 +488,25 @@ def remove_noise(noise_db_limit, audio_path, output_path, supress, language=None
     return output_path
 
 @click.command("mix_audio")
-@click.option('--audio_paths')
+@click.option('--vocals_path')
+@click.option('--inst_path')
 @click.option('--output_path')
 @click.option('--main_gain')
 @click.option('--inst_gain')
 @click.option('--output_format')
+@click.option('--rvc_model_name')
 @click.option('--supress')
 @click.option('--language')
-def mix_audio(audio_paths, output_path, main_gain, inst_gain, output_format, supress, language=None):
+def mix_audio(vocals_path, inst_path, output_path, main_gain, inst_gain, output_format, rvc_model_name, supress, language=None):
     with supress_output(supress):
         combine_audio(
-            audio_paths=audio_paths,
+            vocals_path=vocals_path,
+            inst_path=inst_path,
             output_path=output_path,
             main_gain=main_gain,
             inst_gain=inst_gain,
             output_format=output_format,
+            rvc_model_name=rvc_model_name,
             supress=supress,
         )
 
