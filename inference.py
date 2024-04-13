@@ -531,12 +531,16 @@ def ensemble(input_folder, algorithm_ensemble, output_path, supress, language=No
 @click.option('--algorithm_ensemble_vocals')
 @click.option('--no_inst_folder')
 @click.option('--no_back_folder')
-@click.option('--output_folder')
+@click.option('--output_vocals')
+@click.option('--output_instrumentals')
 @click.option('--device')
 @click.option('--supress')
 @click.option('--language')
-def cpu_mode(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_inst_folder, no_back_folder, output_folder, device, supress, language=None):
-    print("Separating vocals...")
+def cpu_mode(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_inst_folder, no_back_folder, output_vocals, output_instrumentals, device, supress, language=None):
+    if language == "BR":
+        print("Separando vocais...")
+    else:
+        print("Separating vocals...")
     with supress_output(supress):
         basename = os.path.basename(input_file).split(".")[0]
         # Voc_FT
@@ -544,7 +548,10 @@ def cpu_mode(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_inst_fold
         res = MDX(input_file)
         vocals = res["vocals"]
         af.write(f"{no_inst_folder}/{basename}_Voc_FT_(Vocals).wav",  vocals, MDX.sample_rate)
-    print(f"{basename} processing with Voc_FT is over!")
+    if language == "BR":
+        print(f"{basename} processamento com Voc_FT finalizado!")
+    else:
+        print(f"{basename} processing with Voc_FT is over!")
     with supress_output(supress):
         # karokee_4band_v2_sn
         MDX = models.MDX(name="UVR_MDXNET_KARA_2", other_metadata={'segment_size': 256,'overlap': 0.25,'mdx_batch_size': 10,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
@@ -552,26 +559,35 @@ def cpu_mode(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_inst_fold
         vocals = res["vocals"]
         af.write(f"{no_back_folder}/{basename}_UVR_MDXNET_KARA_2.wav", vocals, Vr.sample_rate)
         no_back_output = get_last_modified_file(no_back_folder)
-    print(f"{basename} processing with UVR_MDXNET_KARA_2 is over!")
+    if language == "BR":
+        print(f"{basename} processamento com UVR_MDXNET_KARA_2 finalizado!")
+    else:
+        print(f"{basename} processing with UVR_MDXNET_KARA_2 is over!")
     with supress_output(supress):
         # Reverb_HQ
         MDX = models.MDX(name="Reverb_HQ",  other_metadata={'segment_size': 256,'overlap': 0.25,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
         res = MDX(no_back_output)
         no_reverb = res["no reverb"]
-        af.write(f"{output_folder}/{basename}_Reverb_HQ.wav",  no_reverb, MDX.sample_rate)
-    print(f"{basename} processing with Reverb HQ is over!")
-    print("Vocal processing completed.")
-    print("Separation complete!")
+        af.write(f"{output_vocals}/{basename}_Reverb_HQ.wav",  no_reverb, MDX.sample_rate)
+    if language == "BR":
+        print(f"{basename} processamento com Reverb HQ finalizado!")
+        print("Processamento de vocal completo!")
+    else:
+        print(f"{basename} processing with Reverb HQ is over!")
+        print("Vocal processing completed.")
     output = []
-    output.append(get_last_modified_file(output_folder))
+    output.append(get_last_modified_file(output_vocals))
     with supress_output(supress):
         # Reverb_HQ
         MDX = models.MDX(name="UVR-MDX-NET-Inst_HQ_4",  other_metadata={'segment_size': 256,'overlap': 0.25,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
         res = MDX(no_back_output)
         inst = res["instrumental"]
-        af.write(f"{output_folder}/{basename}_Reverb_HQ.wav",  inst, MDX.sample_rate)
-    print(f"{basename} processing with Inst_HQ_4 is over!")
-    output.append(get_last_modified_file(output_folder))
+        af.write(f"{output_instrumentals}/{basename}_Reverb_HQ.wav",  inst, MDX.sample_rate)
+    if language == "BR":
+        print(f"{basename} processamento com Inst_HQ_4 finalizado!")
+    else:
+        print(f"{basename} processing with Inst_HQ_4 is over!")
+    output.append(get_last_modified_file(output_instrumentals))
     return output
 
 def main():
