@@ -460,10 +460,10 @@ def reverb(audio_path, reverb_size, reverb_wetness, reverb_dryness, reverb_dampi
     with supress_output(supress):
         add_audio_effects(
             audio_path=audio_path,
-            reverb_size=reverb_size,
-            reverb_wet=reverb_wetness,
-            reverb_dry=reverb_dryness,
-            reverb_damping=reverb_damping,
+            reverb_size=float(reverb_size),
+            reverb_wet=float(reverb_wetness),
+            reverb_dry=float(reverb_dryness),
+            reverb_damping=float(reverb_damping),
             output_path=output_path,
         )
     return
