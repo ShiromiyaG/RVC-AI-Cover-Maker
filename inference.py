@@ -506,8 +506,7 @@ def mix_audio(vocals_path, inst_path, output_path, main_gain, inst_gain, output_
             main_gain=main_gain,
             inst_gain=inst_gain,
             output_format=output_format,
-            rvc_model_name=rvc_model_name,
-            supress=supress,
+            rvc_model_name=rvc_model_name
         )
 
 @click.command("ensemble")
