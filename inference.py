@@ -500,7 +500,7 @@ def remove_noise(noise_db_limit, audio_path, output_path, supress, language=None
 @click.option('--language')
 def mix_audio(input_file, vocals_path, inst_path, output_path, main_gain, inst_gain, output_format, rvc_model_name, supress, language=None):
     with supress_output(supress):
-        output_path = f"{output_path}/{input_file}_({rvc_model_name}).{output_format}"
+        output_path = f"{output_path}/{input_file}_({rvc_model_name} Version).{output_format}"
         main_vocal_audio = AudioSegment.from_file(vocals_path, format='flac') + float(main_gain)
         instrumental_audio = AudioSegment.from_file(inst_path, format='flac') + float(inst_gain)
         main_vocal_audio.overlay(instrumental_audio).export(output_path, format=output_format)
