@@ -22,13 +22,15 @@ import zipfile
 import json
 
 def get_last_modified_file(directory, filter=''):
-  arquivos = glob(directory + "/*")
-  if filter != '':
-      arquivos = [arquivo for arquivo in arquivos if filter in arquivo]
-  if arquivos:
-      return max(arquivos, key=os.path.getmtime)
-  else:
-      return None
+    if isinstance(directory, set):
+        directory = list(directory)[0]
+    arquivos = glob(directory + "/*")
+    if filter != '':
+        arquivos = [arquivo for arquivo in arquivos if filter in arquivo]
+    if arquivos:
+        return max(arquivos, key=os.path.getmtime)
+    else:
+        return None
 
 def find_files(directory, extensions):
   files = glob(f'{directory}/**/*{extensions}', recursive=True)
@@ -453,10 +455,21 @@ def rvc_ai(rvc_model_name, rvc_model_name_ext, model_destination_folder, rvc_mod
 @click.option('--reverb_wetness')
 @click.option('--reverb_dryness')
 @click.option('--reverb_damping')
+@click.option('--limiter')
+@click.option('--limiter_threshold_db')
+@click.option('--limiter_release_time')
+@click.option('--limiter_ceiling_db')
+@click.option('--compressor')
+@click.option('--compressor_ratio')
+@click.option('--compressor_threshold_db')
+@click.option('--compressor_attack_ms')
+@click.option('--compressor_release_ms')
+@click.option('--compressor_knee_db')
+@click.option('--compressor_makeup_gain_db')
 @click.option('--output_path')
 @click.option('--supress')
 @click.option('--language')
-def reverb(audio_path, reverb_size, reverb_wetness, reverb_dryness, reverb_damping, output_path, supress, language=None):
+def reverb(audio_path, reverb_size, reverb_wetness, reverb_dryness, reverb_damping, limiter, limiter_threshold_db, limiter_release_time, limiter_ceiling_db, compressor, compressor_ratio, compressor_threshold_db, compressor_attack_ms, compressor_release_ms, compressor_knee_db, compressor_makeup_gain_db, output_path, supress, language=None):
     with supress_output(supress):
         add_audio_effects(
             audio_path=audio_path,
@@ -464,6 +477,17 @@ def reverb(audio_path, reverb_size, reverb_wetness, reverb_dryness, reverb_dampi
             reverb_wet=float(reverb_wetness),
             reverb_dry=float(reverb_dryness),
             reverb_damping=float(reverb_damping),
+            limiter=limiter,
+            limiter_threshold_db=float(limiter_threshold_db),
+            limiter_release_time=float(limiter_release_time),
+            limiter_ceiling_db=float(limiter_ceiling_db),
+            compressor=compressor,
+            compressor_ratio=float(compressor_ratio),
+            compressor_threshold_db=float(compressor_threshold_db),
+            compressor_attack_ms=float(compressor_attack_ms),
+            compressor_release_ms=float(compressor_release_ms),
+            compressor_knee_db=float(compressor_knee_db),
+            compressor_makeup_gain_db=float(compressor_makeup_gain_db),
             output_path=output_path,
         )
     return
