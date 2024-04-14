@@ -430,7 +430,7 @@ def rvc_ai(args):
             with open(download_path, 'wb') as file:
                 file.write(response.content)
         if str(download_path).endswith(".zip"):
-            extraction_folder = os.path.join("/content/RVC_CLI-1.1.1/logs", rvc_model_name)
+            extraction_folder = os.path.join("/content/RVC_CLI/logs", rvc_model_name)
             Path(extraction_folder).mkdir(parents=True, exist_ok=True)
             with zipfile.ZipFile(download_path, 'r') as zip_ref:
                 zip_ref.extractall(extraction_folder)
@@ -450,14 +450,11 @@ def reverb(args):
     limiter = args.limiter
     limiter_threshold_db = args.limiter_threshold_db
     limiter_release_time = args.limiter_release_time
-    limiter_ceiling_db = args.limiter_ceiling_db
     compressor = args.compressor
     compressor_ratio = args.compressor_ratio
     compressor_threshold_db = args.compressor_threshold_db
     compressor_attack_ms = args.compressor_attack_ms
     compressor_release_ms = args.compressor_release_ms
-    compressor_knee_db = args.compressor_knee_db
-    compressor_makeup_gain_db = args.compressor_makeup_gain_db
     output_path = args.output_path
     supress = args.supress
     language = args.language
@@ -479,8 +476,6 @@ def reverb(args):
             compressor_threshold_db=float(compressor_threshold_db),
             compressor_attack_ms=float(compressor_attack_ms),
             compressor_release_ms=float(compressor_release_ms),
-            compressor_knee_db=float(compressor_knee_db),
-            compressor_makeup_gain_db=float(compressor_makeup_gain_db),
             output_path=output_path,
         )
     return
