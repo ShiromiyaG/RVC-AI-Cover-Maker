@@ -564,7 +564,7 @@ def main():
     separate_instrumentals_parser.add_argument('--language')
     separate_instrumentals_parser.set_defaults(func=separate_instrumentals)
 
-    rvc_parser = subparser.add_parser("rvc_ai")
+    rvc_parser = subparsers.add_parser("rvc_ai")
     rvc_parser.add_argument('--rvc_model_name')
     rvc_parser.add_argument('--rvc_model_name_ext')
     rvc_parser.add_argument('--model_destination_folder')
