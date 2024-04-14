@@ -52,7 +52,10 @@ def supress_output(supress=True):
     else:
         yield
 
-def download_yt(link, supress, language=None):
+def download_yt(args):
+    link = args.link
+    supress = args.supress
+    language = args.language
     options = {
         'format': 'bestaudio/best',
         'postprocessors': [{
@@ -75,7 +78,13 @@ def download_yt(link, supress, language=None):
     else:
         print("Download of Youtube music complete!")
 
-def download_deezer(link, bf_secret, track_url_key, arl, supress, language=None):
+def download_deezer(args):
+    link = args.link
+    bf_secret = args.bf_secret
+    track_url_key = args.track_url_key
+    arl = args.arl
+    supress = args.supress
+    language = args.language
     if language == "BR":
         print("Fazendo download da música do Deezer...")
     else:
@@ -94,7 +103,13 @@ def download_deezer(link, bf_secret, track_url_key, arl, supress, language=None)
     else:
         print("Download of Deezer complete!")
 
-def remove_backing_vocals_and_reverb(input_file, no_back_folder, output_folder, device, supress, language=None):
+def remove_backing_vocals_and_reverb(args):
+    input_file = args.input_file
+    no_back_folder = args.no_back_folder
+    output_folder = args.output_folder
+    device = args.device
+    supress = args.supress
+    language = args.language
     with supress_output(supress):
         basename = os.path.basename(input_file).split(".")[0]
         Vr = models.VrNetwork(name="karokee_4band_v2_sn", other_metadata={'normaliz': False, 'aggressiveness': 0.05,'window_size': 320,'batch_size': 8,'is_tta': True},device=device, logger=None)
@@ -125,7 +140,16 @@ def remove_backing_vocals_and_reverb(input_file, no_back_folder, output_folder, 
         print("Vocal processing completed.")
     return [output for output in output_folder if "Reverb_HQ" in output]
 
-def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_inst_folder, no_back_folder, output_folder, device, supress, language=None):
+def separate_vocals(args):
+    input_file = args.input_file
+    vocal_ensemble = args.vocal_ensemble
+    algorithm_ensemble_vocals = args.algorithm_ensemble_vocals
+    no_inst_folder = args.no_inst_folder
+    no_back_folder = args.no_back_folder
+    output_folder = args.output_folder
+    device = args.device
+    supress = args.supress
+    language = args.language
     if language == "BR":
         print("Separando vocais...")
     else:
@@ -213,7 +237,16 @@ def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_in
         print("Vocal processing completed.")
     return get_last_modified_file(output_folder)
 
-def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble_inst, stage1_dir, stage2_dir, final_output_dir, device, supress, language=None):
+def separate_instrumentals(args):
+    input_file = args.input_file
+    instrumental_ensemble = args.instrumental_ensemble
+    algorithm_ensemble_inst = args.algorithm_ensemble_inst
+    stage1_dir = args.stage1_dir
+    stage2_dir = args.stage2_dir
+    final_output_dir = args.final_output_dir
+    device = args.device
+    supress = args.supress
+    language = args.language
     if language == "BR":
         print("Separando instrumentais...")
     else:
@@ -374,7 +407,13 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
     else:
         get_last_modified_file(stage1_dir)
 
-def rvc_ai(rvc_model_name, rvc_model_name_ext, model_destination_folder, rvc_model_link, supress, language=None):
+def rvc_ai(args):
+    rvc_model_name = args.rvc_model_name
+    rvc_model_name_ext = args.rvc_model_name_ext
+    model_destination_folder = args.model_destination_folder
+    rvc_model_link = args.rvc_model_link
+    supress = args.supress
+    language = args.language
     if language == "BR":
         print("Processando com RVC AI...")
         print("Baixando modelo...")
@@ -400,7 +439,28 @@ def rvc_ai(rvc_model_name, rvc_model_name_ext, model_destination_folder, rvc_mod
     else:
         print("Download complete.")
 
-def reverb(audio_path, reverb, reverb_size, reverb_wetness, reverb_dryness, reverb_damping, reverb_width, limiter, limiter_threshold_db, limiter_release_time, limiter_ceiling_db, compressor, compressor_ratio, compressor_threshold_db, compressor_attack_ms, compressor_release_ms, compressor_knee_db, compressor_makeup_gain_db, output_path, supress, language=None):
+def reverb(args):
+    audio_path = args.audio_path
+    reverb = args.reverb
+    reverb_size = args.reverb_size
+    reverb_wetness = args.reverb_wetness
+    reverb_dryness = args.reverb_dryness
+    reverb_damping = args.reverb_damping
+    reverb_width = args.reverb_width
+    limiter = args.limiter
+    limiter_threshold_db = args.limiter_threshold_db
+    limiter_release_time = args.limiter_release_time
+    limiter_ceiling_db = args.limiter_ceiling_db
+    compressor = args.compressor
+    compressor_ratio = args.compressor_ratio
+    compressor_threshold_db = args.compressor_threshold_db
+    compressor_attack_ms = args.compressor_attack_ms
+    compressor_release_ms = args.compressor_release_ms
+    compressor_knee_db = args.compressor_knee_db
+    compressor_makeup_gain_db = args.compressor_makeup_gain_db
+    output_path = args.output_path
+    supress = args.supress
+    language = args.language
     with supress_output(supress):
         add_audio_effects(
             audio_path=audio_path,
@@ -425,7 +485,12 @@ def reverb(audio_path, reverb, reverb_size, reverb_wetness, reverb_dryness, reve
         )
     return
 
-def remove_noise(noise_db_limit, audio_path, output_path, supress, language=None):
+def remove_noise(args):
+    noise_db_limit = args.noise_db_limit
+    audio_path = args.audio_path
+    output_path = args.output_path
+    supress = args.supress
+    language = args.language
     with supress_output(supress):
         audio = AudioSegment.from_file(audio_path)
         db_limit = noise_db_limit
@@ -438,7 +503,17 @@ def remove_noise(noise_db_limit, audio_path, output_path, supress, language=None
         silenced_audio.export(output_path, format="wav")
     return output_path
 
-def mix_audio(input_file, vocals_path, inst_path, output_path, main_gain, inst_gain, output_format, rvc_model_name, supress, language=None):
+def mix_audio(args):
+    input_file = args.input_file
+    vocals_path = args.vocals_path
+    inst_path = args.inst_path
+    output_path = args.output_path
+    main_gain = args.main_gain
+    inst_gain = args.inst_gain
+    output_format = args.output_format
+    rvc_model_name = args.rvc_model_name
+    supress = args.supress
+    language = args.language
     with supress_output(supress):
         output_path = f"{output_path}/{input_file}_({rvc_model_name} Version).{output_format}"
         main_vocal_audio = AudioSegment.from_file(vocals_path, format='flac') + float(main_gain)
@@ -446,7 +521,12 @@ def mix_audio(input_file, vocals_path, inst_path, output_path, main_gain, inst_g
         main_vocal_audio.overlay(instrumental_audio).export(output_path, format=output_format)
         return output_path
 
-def ensemble(input_folder, algorithm_ensemble, output_path, supress, language=None):
+def ensemble(args):
+    input_folder = args.input_folder
+    algorithm_ensemble = args.algorithm_ensemble
+    output_path = args.output_path
+    supress = args.supress
+    language = args.language
     with supress_output(supress):
         files = [file for file in os.listdir(input_folder) if os.path.isfile(os.path.join(input_folder, file))]
         ensemble_inputs(
@@ -459,7 +539,17 @@ def ensemble(input_folder, algorithm_ensemble, output_path, supress, language=No
             is_array=False,
         )
 
-def cpu_mode(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_inst_folder, no_back_folder, output_vocals, output_instrumentals, device, supress, language=None):
+def cpu_mode(args):
+    input_file = args.input_file
+    vocal_ensemble = args.vocal_ensemble
+    algorithm_ensemble_vocals = args.algorithm_ensemble_vocals
+    no_inst_folder = args.no_inst_folder
+    no_back_folder = args.no_back_folder
+    output_vocals = args.output_vocals
+    output_instrumentals = args.output_instrumentals
+    device = args.device
+    supress = args.supress
+    language = args.language
     if language == "BR":
         print("Separando vocais...")
     else:
