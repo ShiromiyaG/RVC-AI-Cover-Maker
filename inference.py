@@ -451,10 +451,12 @@ def rvc_ai(rvc_model_name, rvc_model_name_ext, model_destination_folder, rvc_mod
 
 @click.command("reverb")
 @click.option('--audio_path')
+@click.option('--reverb')
 @click.option('--reverb_size')
 @click.option('--reverb_wetness')
 @click.option('--reverb_dryness')
 @click.option('--reverb_damping')
+@click.option('--reverb_width')
 @click.option('--limiter')
 @click.option('--limiter_threshold_db')
 @click.option('--limiter_release_time')
@@ -469,14 +471,16 @@ def rvc_ai(rvc_model_name, rvc_model_name_ext, model_destination_folder, rvc_mod
 @click.option('--output_path')
 @click.option('--supress')
 @click.option('--language')
-def reverb(audio_path, reverb_size, reverb_wetness, reverb_dryness, reverb_damping, limiter, limiter_threshold_db, limiter_release_time, limiter_ceiling_db, compressor, compressor_ratio, compressor_threshold_db, compressor_attack_ms, compressor_release_ms, compressor_knee_db, compressor_makeup_gain_db, output_path, supress, language=None):
+def reverb(audio_path, reverb, reverb_size, reverb_wetness, reverb_dryness, reverb_damping, reverb_width, limiter, limiter_threshold_db, limiter_release_time, limiter_ceiling_db, compressor, compressor_ratio, compressor_threshold_db, compressor_attack_ms, compressor_release_ms, compressor_knee_db, compressor_makeup_gain_db, output_path, supress, language=None):
     with supress_output(supress):
         add_audio_effects(
             audio_path=audio_path,
+            reverb=reverb,
             reverb_size=float(reverb_size),
             reverb_wet=float(reverb_wetness),
             reverb_dry=float(reverb_dryness),
             reverb_damping=float(reverb_damping),
+            reverb_width=float(reverb_width),
             limiter=limiter,
             limiter_threshold_db=float(limiter_threshold_db),
             limiter_release_time=float(limiter_release_time),
