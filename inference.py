@@ -2,7 +2,6 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow as tf
 from yt_dlp import YoutubeDL
-import click
 import subprocess
 import contextlib
 import sys
@@ -52,14 +51,6 @@ def supress_output(supress=True):
     else:
         yield
 
-@click.group()
-def cli():
-    pass
-
-@click.command("download_yt")
-@click.option('--link')
-@click.option('--supress')
-@click.option('--language')
 def download_yt(link, supress, language=None):
     options = {
         'format': 'bestaudio/best',
@@ -83,13 +74,6 @@ def download_yt(link, supress, language=None):
     else:
         print("Download of Youtube music complete!")
 
-@click.command("download_deezer")
-@click.option('--link')
-@click.option('--bf_secret')
-@click.option('--track_url_key')
-@click.option('--arl')
-@click.option('--supress')
-@click.option('--language')
 def download_deezer(link, bf_secret, track_url_key, arl, supress, language=None):
     if language == "BR":
         print("Fazendo download da música do Deezer...")
@@ -109,13 +93,6 @@ def download_deezer(link, bf_secret, track_url_key, arl, supress, language=None)
     else:
         print("Download of Deezer complete!")
 
-@click.command("remove_backing_vocals_and_reverb")
-@click.option('--input_file')
-@click.option('--no_back_folder')
-@click.option('--output_folder')
-@click.option('--device')
-@click.option('--supress')
-@click.option('--language')
 def remove_backing_vocals_and_reverb(input_file, no_back_folder, output_folder, device, supress, language=None):
     with supress_output(supress):
         basename = os.path.basename(input_file).split(".")[0]
@@ -147,16 +124,6 @@ def remove_backing_vocals_and_reverb(input_file, no_back_folder, output_folder, 
         print("Vocal processing completed.")
     return [output for output in output_folder if "Reverb_HQ" in output]
 
-@click.command("separate_vocals")
-@click.option('--input_file')
-@click.option('--vocal_ensemble')
-@click.option('--algorithm_ensemble_vocals')
-@click.option('--no_inst_folder')
-@click.option('--no_back_folder')
-@click.option('--output_folder')
-@click.option('--device')
-@click.option('--supress')
-@click.option('--language')
 def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_inst_folder, no_back_folder, output_folder, device, supress, language=None):
     if language == "BR":
         print("Separando vocais...")
@@ -245,16 +212,6 @@ def separate_vocals(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_in
         print("Vocal processing completed.")
     return get_last_modified_file(output_folder)
 
-@click.command("separate_instrumentals")
-@click.option('--input_file')
-@click.option('--instrumental_ensemble')
-@click.option('--algorithm_ensemble_inst')
-@click.option('--stage1_dir')
-@click.option('--stage2_dir')
-@click.option('--final_output_dir')
-@click.option('--device')
-@click.option('--supress')
-@click.option('--language')
 def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble_inst, stage1_dir, stage2_dir, final_output_dir, device, supress, language=None):
     if language == "BR":
         print("Separando instrumentais...")
@@ -416,13 +373,6 @@ def separate_instrumentals(input_file, instrumental_ensemble, algorithm_ensemble
     else:
         get_last_modified_file(stage1_dir)
 
-@click.command("rvc_ai")
-@click.option('--rvc_model_name')
-@click.option('--rvc_model_name_ext')
-@click.option('--model_destination_folder')
-@click.option('--rvc_model_link')
-@click.option('--supress')
-@click.option('--language')
 def rvc_ai(rvc_model_name, rvc_model_name_ext, model_destination_folder, rvc_model_link, supress, language=None):
     if language == "BR":
         print("Processando com RVC AI...")
@@ -449,28 +399,6 @@ def rvc_ai(rvc_model_name, rvc_model_name_ext, model_destination_folder, rvc_mod
     else:
         print("Download complete.")
 
-@click.command("reverb")
-@click.option('--audio_path')
-@click.option('--reverb')
-@click.option('--reverb_size')
-@click.option('--reverb_wetness')
-@click.option('--reverb_dryness')
-@click.option('--reverb_damping')
-@click.option('--reverb_width')
-@click.option('--limiter')
-@click.option('--limiter_threshold_db')
-@click.option('--limiter_release_time')
-@click.option('--limiter_ceiling_db')
-@click.option('--compressor')
-@click.option('--compressor_ratio')
-@click.option('--compressor_threshold_db')
-@click.option('--compressor_attack_ms')
-@click.option('--compressor_release_ms')
-@click.option('--compressor_knee_db')
-@click.option('--compressor_makeup_gain_db')
-@click.option('--output_path')
-@click.option('--supress')
-@click.option('--language')
 def reverb(audio_path, reverb, reverb_size, reverb_wetness, reverb_dryness, reverb_damping, reverb_width, limiter, limiter_threshold_db, limiter_release_time, limiter_ceiling_db, compressor, compressor_ratio, compressor_threshold_db, compressor_attack_ms, compressor_release_ms, compressor_knee_db, compressor_makeup_gain_db, output_path, supress, language=None):
     with supress_output(supress):
         add_audio_effects(
@@ -496,12 +424,6 @@ def reverb(audio_path, reverb, reverb_size, reverb_wetness, reverb_dryness, reve
         )
     return
 
-@click.command("remove_noise")
-@click.option('--audio_path')
-@click.option('--noise_db_limit')
-@click.option('--output_path')
-@click.option('--supress')
-@click.option('--language')
 def remove_noise(noise_db_limit, audio_path, output_path, supress, language=None):
     with supress_output(supress):
         audio = AudioSegment.from_file(audio_path)
@@ -515,17 +437,6 @@ def remove_noise(noise_db_limit, audio_path, output_path, supress, language=None
         silenced_audio.export(output_path, format="wav")
     return output_path
 
-@click.command("mix_audio")
-@click.option('--input_file')
-@click.option('--vocals_path')
-@click.option('--inst_path')
-@click.option('--output_path')
-@click.option('--main_gain')
-@click.option('--inst_gain')
-@click.option('--output_format')
-@click.option('--rvc_model_name')
-@click.option('--supress')
-@click.option('--language')
 def mix_audio(input_file, vocals_path, inst_path, output_path, main_gain, inst_gain, output_format, rvc_model_name, supress, language=None):
     with supress_output(supress):
         output_path = f"{output_path}/{input_file}_({rvc_model_name} Version).{output_format}"
@@ -534,13 +445,6 @@ def mix_audio(input_file, vocals_path, inst_path, output_path, main_gain, inst_g
         main_vocal_audio.overlay(instrumental_audio).export(output_path, format=output_format)
         return output_path
 
-
-@click.command("ensemble")
-@click.option('--input_folder')
-@click.option('--algorithm_ensemble')
-@click.option('--output_path')
-@click.option('--supress')
-@click.option('--language')
 def ensemble(input_folder, algorithm_ensemble, output_path, supress, language=None):
     with supress_output(supress):
         files = [file for file in os.listdir(input_folder) if os.path.isfile(os.path.join(input_folder, file))]
@@ -554,17 +458,6 @@ def ensemble(input_folder, algorithm_ensemble, output_path, supress, language=No
             is_array=False,
         )
 
-@click.command("cpu_mode")
-@click.option('--input_file')
-@click.option('--vocal_ensemble')
-@click.option('--algorithm_ensemble_vocals')
-@click.option('--no_inst_folder')
-@click.option('--no_back_folder')
-@click.option('--output_vocals')
-@click.option('--output_instrumentals')
-@click.option('--device')
-@click.option('--supress')
-@click.option('--language')
 def cpu_mode(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_inst_folder, no_back_folder, output_vocals, output_instrumentals, device, supress, language=None):
     if language == "BR":
         print("Separando vocais...")
@@ -620,17 +513,133 @@ def cpu_mode(input_file, vocal_ensemble, algorithm_ensemble_vocals, no_inst_fold
     return output
 
 def main():
-    cli.add_command(download_yt)
-    cli.add_command(download_deezer)
-    cli.add_command(remove_backing_vocals_and_reverb)
-    cli.add_command(separate_vocals)
-    cli.add_command(separate_instrumentals)
-    cli.add_command(rvc_ai)
-    cli.add_command(reverb)
-    cli.add_command(mix_audio)
-    cli.add_command(ensemble)
-    cli.add_command(cpu_mode)
-    cli()
+    parser = argparse.ArgumentParser(description="CLI")
+    subparsers = parser.add_subparsers()
+
+    download_yt_parser = subparsers.add_parser('download_yt')
+    download_yt_parser.add_argument('--link')
+    download_yt_parser.add_argument('--supress')
+    download_yt_parser.add_argument('--language')
+    download_yt_parser.set_defaults(func=download_yt)
+
+    deezer_parser = subparsers.add_parser('download_deezer')
+    deezer_parser.add_argument('--link')
+    deezer_parser.add_argument('--bf_secret')
+    deezer_parser.add_argument('--track_url_key')
+    deezer_parser.add_argument('--arl')
+    deezer_parser.add_argument('--supress')
+    deezer_parser.add_argument('--language')
+    deezer_parser.set_defaults(func=download_deezer)
+
+    rbvr_parser = subparsers.add_parser('remove_backing_vocals_and_reverb')
+    rbvr_parser.add_argument('--input_file')
+    rbvr_parser.add_argument('--no_back_folder')
+    rbvr_parser.add_argument('--output_folder')
+    rbvr_parser.add_argument('--device')
+    rbvr_parser.add_argument('--supress')
+    rbvr_parser.add_argument('--language')
+    rbvr_parser.set_defaults(func=remove_backing_vocals_and_reverb)
+
+    separate_vocals_parser = subparsers.add_parser('separate_vocals')
+    separate_vocals_parser.add_argument('--input_file')
+    separate_vocals_parser.add_argument('--vocal_ensemble')
+    separate_vocals_parser.add_argument('--algorithm_ensemble_vocals')
+    separate_vocals_parser.add_argument('--no_inst_folder')
+    separate_vocals_parser.add_argument('--no_back_folder')
+    separate_vocals_parser.add_argument('--output_folder')
+    separate_vocals_parser.add_argument('--device')
+    separate_vocals_parser.add_argument('--supress')
+    separate_vocals_parser.add_argument('--language')
+    separate_vocals_parser.set_defaults(func=separate_vocals)
+
+    separate_instrumentals_parser = subparsers.add_parser('separate_instrumentals')
+    separate_instrumentals_parser.add_argument('--input_file')
+    separate_instrumentals_parser.add_argument('--instrumental_ensemble')
+    separate_instrumentals_parser.add_argument('--algorithm_ensemble_inst')
+    separate_instrumentals_parser.add_argument('--stage1_dir')
+    separate_instrumentals_parser.add_argument('--stage2_dir')
+    separate_instrumentals_parser.add_argument('--final_output_dir')
+    separate_instrumentals_parser.add_argument('--device')
+    separate_instrumentals_parser.add_argument('--supress')
+    separate_instrumentals_parser.add_argument('--language')
+    separate_instrumentals_parser.set_defaults(func=separate_instrumentals)
+
+    parser = argparse.ArgumentParser(description="RVC AI command")
+    parser.add_argument('--rvc_model_name')
+    parser.add_argument('--rvc_model_name_ext')
+    parser.add_argument('--model_destination_folder')
+    parser.add_argument('--rvc_model_link')
+    parser.add_argument('--supress')
+    parser.add_argument('--language')
+
+    reverb_parser = subparsers.add_parser('reverb')
+    reverb_parser.add_argument('--audio_path')
+    reverb_parser.add_argument('--reverb')
+    reverb_parser.add_argument('--reverb_size', type=float)
+    reverb_parser.add_argument('--reverb_wetness', type=float)
+    reverb_parser.add_argument('--reverb_dryness', type=float)
+    reverb_parser.add_argument('--reverb_damping', type=float)
+    reverb_parser.add_argument('--reverb_width', type=float)
+    reverb_parser.add_argument('--limiter')
+    reverb_parser.add_argument('--limiter_threshold_db', type=float)
+    reverb_parser.add_argument('--limiter_release_time', type=float)
+    reverb_parser.add_argument('--limiter_ceiling_db', type=float)
+    reverb_parser.add_argument('--compressor')
+    reverb_parser.add_argument('--compressor_ratio', type=float)
+    reverb_parser.add_argument('--compressor_threshold_db', type=float)
+    reverb_parser.add_argument('--compressor_attack_ms', type=float)
+    reverb_parser.add_argument('--compressor_release_ms', type=float)
+    reverb_parser.add_argument('--compressor_knee_db', type=float)
+    reverb_parser.add_argument('--compressor_makeup_gain_db', type=float)
+    reverb_parser.add_argument('--output_path')
+    reverb_parser.add_argument('--supress')
+    reverb_parser.add_argument('--language')
+    reverb_parser.set_defaults(func=reverb)
+
+    remove_noise_parser = subparsers.add_parser('remove_noise')
+    remove_noise_parser.add_argument('--audio_path')
+    remove_noise_parser.add_argument('--noise_db_limit', type=float)
+    remove_noise_parser.add_argument('--output_path')
+    remove_noise_parser.add_argument('--supress')
+    remove_noise_parser.add_argument('--language')
+    remove_noise_parser.set_defaults(func=remove_noise)
+
+    mix_audio_parser = subparsers.add_parser('mix_audio')
+    mix_audio_parser.add_argument('--input_file')
+    mix_audio_parser.add_argument('--vocals_path')
+    mix_audio_parser.add_argument('--inst_path')
+    mix_audio_parser.add_argument('--output_path')
+    mix_audio_parser.add_argument('--main_gain', type=float)
+    mix_audio_parser.add_argument('--inst_gain', type=float)
+    mix_audio_parser.add_argument('--output_format')
+    mix_audio_parser.add_argument('--rvc_model_name')
+    mix_audio_parser.add_argument('--supress')
+    mix_audio_parser.add_argument('--language')
+    mix_audio_parser.set_defaults(func=mix_audio)
+
+    ensemble_parser = subparsers.add_parser('ensemble')
+    ensemble_parser.add_argument('--input_folder')
+    ensemble_parser.add_argument('--algorithm_ensemble')
+    ensemble_parser.add_argument('--output_path')
+    ensemble_parser.add_argument('--supress')
+    ensemble_parser.add_argument('--language')
+    ensemble_parser.set_defaults(func=ensemble)
+
+    cpu_mode_parser = subparsers.add_parser('cpu_mode')
+    cpu_mode_parser.add_argument('--input_file')
+    cpu_mode_parser.add_argument('--vocal_ensemble')
+    cpu_mode_parser.add_argument('--algorithm_ensemble_vocals')
+    cpu_mode_parser.add_argument('--no_inst_folder')
+    cpu_mode_parser.add_argument('--no_back_folder')
+    cpu_mode_parser.add_argument('--output_vocals')
+    cpu_mode_parser.add_argument('--output_instrumentals')
+    cpu_mode_parser.add_argument('--device')
+    cpu_mode_parser.add_argument('--supress')
+    cpu_mode_parser.add_argument('--language')
+    cpu_mode_parser.set_defaults(func=cpu_mode)
+
+    args = parser.parse_args()
+    args.func(args)
 
 if __name__ == "__main__":
     main()
