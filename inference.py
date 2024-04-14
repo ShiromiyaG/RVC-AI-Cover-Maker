@@ -438,7 +438,7 @@ def rvc_ai(rvc_model_name, rvc_model_name_ext, model_destination_folder, rvc_mod
             with open(download_path, 'wb') as file:
                 file.write(response.content)
         if str(download_path).endswith(".zip"):
-            extraction_folder = os.path.join("/content/RVC_CLI/logs", rvc_model_name)
+            extraction_folder = os.path.join("/content/RVC_CLI-1.1.1/logs", rvc_model_name)
             Path(extraction_folder).mkdir(parents=True, exist_ok=True)
             with zipfile.ZipFile(download_path, 'r') as zip_ref:
                 zip_ref.extractall(extraction_folder)
