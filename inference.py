@@ -7,7 +7,7 @@ import contextlib
 import sys
 from glob import glob
 from pydub import AudioSegment
-from musicsouceseparationtraining import proc_file
+from mdx23colab import main as colab_main
 from shiromiyautils import ensemble_inputs
 from shiromiyautils import add_audio_effects
 from shiromiyautils import combine_audio
@@ -146,10 +146,38 @@ def separate_vocals(args):
     algorithm_ensemble_vocals = args.algorithm_ensemble_vocals
     no_inst_folder = args.no_inst_folder
     no_back_folder = args.no_back_folder
-    output_folder = args.output_folder
+    output_final_folder = args.output_final_folder
     device = args.device
     supress = args.supress
     language = args.language
+    #colab
+    output_folder=args.output_folder,
+    large_gpu=args.large_gpu,
+    single_onnx=args.single_onnx,
+    cpu=args.cpu,
+    overlap_demucs=args.overlap_demucs,
+    overlap_VOCFT=args.overlap_VOCFT,
+    overlap_InstHQ4=args.overlap_InstHQ4,
+    overlap_VitLarge=args.overlap_VitLarge,
+    overlap_InstVoc=args.overlap_InstVoc,
+    overlap_BSRoformer=args.overlap_BSRoformer,
+    weight_InstVoc=args.weight_InstVoc,
+    weight_VOCFT=args.weight_VOCFT,
+    weight_InstHQ4=args.weight_InstHQ4,
+    weight_VitLarge=args.weight_VitLarge,
+    weight_BSRoformer=args.weight_BSRoformer,
+    BigShifts=args.BigShifts,
+    vocals_only=args.vocals_only,
+    use_BSRoformer=args.use_BSRoformer,
+    BSRoformer_model=args.BSRoformer_model,
+    use_InstVoc=args.use_InstVoc,
+    use_VitLarge=args.use_VitLarge,
+    use_InstHQ4=args.use_InstHQ4,
+    use_VOCFT=args.use_VOCFT,
+    output_format=args.output_format,
+    input_gain=args.input_gain,
+    restore_gain=args.restore_gain,
+    filter_vocals=args.filter_vocals
     if language == "BR":
         print("Separando vocais...")
     else:
@@ -157,57 +185,40 @@ def separate_vocals(args):
     with supress_output(supress):
         basename = os.path.basename(input_file).split(".")[0]
         # MDX23C-8KFFT-InstVoc_HQ
-        MDX23C_args = [
-            "--model_type", "mdx23c",
-            "--config_path", "Music_Source_Separation_Training/models/model_2_stem_full_band_8k.yaml",
-            "--start_check_point", "Music_Source_Separation_Training/models/MDX23C-8KFFT-InstVoc_HQ.ckpt",
-            "--input_file", f"{input_file}",
-            "--store_dir", f"{no_inst_folder}",
-        ]
-        proc_file(MDX23C_args)
-        file = get_last_modified_file(no_inst_folder, "Vocals")
-        base_name = Path(file).stem
-        extension = Path(file).suffix
-        new_name = f"{base_name}MDX23C-8KFFT-InstVoc_HQ{extension}"
-        os.rename(file, os.path.join(os.path.dirname(file), new_name))
+        colab_main(
+            input_audio=input_file,
+            output_folder=no_inst_folder,
+            large_gpu=large_gpu,
+            single_onnx=single_onnx,
+            cpu=cpu,
+            overlap_demucs=overlap_demucs,
+            overlap_VOCFT=overlap_VOCFT,
+            overlap_InstHQ4=overlap_InstHQ4,
+            overlap_VitLarge=overlap_VitLarge,
+            overlap_InstVoc=overlap_InstVoc,
+            overlap_BSRoformer=overlap_BSRoformer,
+            weight_InstVoc=weight_InstVoc,
+            weight_VOCFT=weight_VOCFT,
+            weight_InstHQ4=weight_InstHQ4,
+            weight_VitLarge=weight_VitLarge,
+            weight_BSRoformer=weight_BSRoformer,
+            BigShifts=BigShifts,
+            vocals_only=vocals_only,
+            use_BSRoformer=use_BSRoformer,
+            BSRoformer_model=BSRoformer_model,
+            use_InstVoc=use_InstVoc,
+            use_VitLarge=use_VitLarge,
+            use_InstHQ4=use_InstHQ4,
+            use_VOCFT=use_VOCFT,
+            output_format=output_format,
+            input_gain=input_gain,
+            restore_gain=restore_gain,
+            filter_vocals=filter_vocals
+        )
     if language == "BR":
-        print(f"{basename} processamento com MDX23C-8KFFT-InstVoc_HQ finalizado!")
+        print(f"{basename} separação dos vocais finalizado!")
     else:
-        print(f"{basename} processing with MDX23C-8KFFT-InstVoc_HQ is over!")
-    # Ensemble Vocals
-    if vocal_ensemble:
-        with supress_output(supress):
-            lista = []
-            lista.append(get_last_modified_file(no_inst_folder, "Vocals"))
-            BSRoformer_args = [
-                "--model_type", "bs_roformer",
-                "--config_path", "Music_Source_Separation_Training/models/model_bs_roformer_ep_317_sdr_12.9755.yaml",
-                "--start_check_point", "Music_Source_Separation_Training/models/model_bs_roformer_ep_317_sdr_12.9755.ckpt",
-                "--input_file", f"{input_file}",
-                "--store_dir", f"{no_inst_folder}",
-            ]
-            proc_file(BSRoformer_args)
-        if language == "BR":
-            print(f"{basename} processamento com BSRoformer finalizado!")
-        else:
-            print(f"{basename} processing with BSRoformer is over!")
-        with supress_output(supress):
-            lista.append(get_last_modified_file(no_inst_folder, "Vocals"))
-            ensemble_voc = os.path.join(no_inst_folder, f"{basename}_ensemble1.wav")
-            ensemble_inputs(
-                audio_input=lista,
-                algorithm=algorithm_ensemble_vocals,
-                is_normalization=False,
-                wav_type_set="PCM_16",
-                save_path=ensemble_voc,
-                is_wave=False,
-                is_array=False,
-            )
-            no_inst_output = ensemble_voc
-        if language == "BR":
-            print("Processamento do primeiro Ensemble finalizado!")
-        else:
-            print("Processing of the first Ensemble is over!")
+        print(f"{basename} processing of vocals separation is over!")
     with supress_output(supress):
         # karokee_4band_v2_sn
         Vr = models.VrNetwork(name="karokee_4band_v2_sn", other_metadata={'normaliz': False, 'aggressiveness': 0.05,'window_size': 320,'batch_size': 8,'is_tta': True},device=device, logger=None)
@@ -227,7 +238,7 @@ def separate_vocals(args):
         with supress_output():
             res = MDX(no_back_output)
             no_reverb = res["no reverb"]
-            af.write(f"{output_folder}/{basename}_Reverb_HQ.wav",  no_reverb, MDX.sample_rate)
+            af.write(f"{output_final_folder}/{basename}_Reverb_HQ.wav",  no_reverb, MDX.sample_rate)
         torch.cuda.empty_cache()
     if language == "BR":
         print(f"{basename} processamento com Reverb HQ finalizado!")
@@ -235,7 +246,7 @@ def separate_vocals(args):
     else:
         print(f"{basename} processing with Reverb HQ is over!")
         print("Vocal processing completed.")
-    return get_last_modified_file(output_folder)
+    return get_last_modified_file(output_final_folder)
 
 def separate_instrumentals(args):
     input_file = args.input_file
@@ -626,15 +637,41 @@ def main():
     rbvr_parser.set_defaults(func=remove_backing_vocals_and_reverb)
 
     separate_vocals_parser = subparsers.add_parser('separate_vocals')
-    separate_vocals_parser.add_argument('--input_file')
-    separate_vocals_parser.add_argument('--vocal_ensemble')
-    separate_vocals_parser.add_argument('--algorithm_ensemble_vocals')
+    separate_vocals_parser.add_argument('--output_final_folder')
     separate_vocals_parser.add_argument('--no_inst_folder')
     separate_vocals_parser.add_argument('--no_back_folder')
-    separate_vocals_parser.add_argument('--output_folder')
     separate_vocals_parser.add_argument('--device')
     separate_vocals_parser.add_argument('--supress')
     separate_vocals_parser.add_argument('--language')
+    #colab options
+    separate_vocals_parser.add_argument('--input_audio', type=str, required=True)
+    separate_vocals_parser.add_argument('--output_folder', type=str, required=True)
+    separate_vocals_parser.add_argument('--large_gpu', type=bool, default=False)
+    separate_vocals_parser.add_argument('--single_onnx', type=bool, default=False)
+    separate_vocals_parser.add_argument('--cpu', type=bool, default=False)
+    separate_vocals_parser.add_argument('--overlap_demucs', type=float, default=0.25)
+    separate_vocals_parser.add_argument('--overlap_VOCFT', type=float, default=0.25)
+    separate_vocals_parser.add_argument('--overlap_InstHQ4', type=float, default=0.25)
+    separate_vocals_parser.add_argument('--overlap_VitLarge', type=float, default=0.25)
+    separate_vocals_parser.add_argument('--overlap_InstVoc', type=float, default=0.25)
+    separate_vocals_parser.add_argument('--overlap_BSRoformer', type=float, default=0.25)
+    separate_vocals_parser.add_argument('--weight_InstVoc', type=float, default=1.0)
+    separate_vocals_parser.add_argument('--weight_VOCFT', type=float, default=1.0)
+    separate_vocals_parser.add_argument('--weight_InstHQ4', type=float, default=1.0)
+    separate_vocals_parser.add_argument('--weight_VitLarge', type=float, default=1.0)
+    separate_vocals_parser.add_argument('--weight_BSRoformer', type=float, default=1.0)
+    separate_vocals_parser.add_argument('--BigShifts', type=bool, default=False)
+    separate_vocals_parser.add_argument('--vocals_only', type=bool, default=False)
+    separate_vocals_parser.add_argument('--use_BSRoformer', type=bool, default=False)
+    separate_vocals_parser.add_argument('--BSRoformer_model', type=str, default=None)
+    separate_vocals_parser.add_argument('--use_InstVoc', type=bool, default=False)
+    separate_vocals_parser.add_argument('--use_VitLarge', type=bool, default=False)
+    separate_vocals_parser.add_argument('--use_InstHQ4', type=bool, default=False)
+    separate_vocals_parser.add_argument('--use_VOCFT', type=bool, default=False)
+    separate_vocals_parser.add_argument('--output_format', type=str, default='wav')
+    separate_vocals_parser.add_argument('--input_gain', type=float, default=0.0)
+    separate_vocals_parser.add_argument('--restore_gain', type=bool, default=False)
+    separate_vocals_parser.add_argument('--filter_vocals', type=bool, default=False)
     separate_vocals_parser.set_defaults(func=separate_vocals)
 
     separate_instrumentals_parser = subparsers.add_parser('separate_instrumentals')
