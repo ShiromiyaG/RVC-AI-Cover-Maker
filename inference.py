@@ -191,18 +191,18 @@ def separate_vocals(args):
             large_gpu=large_gpu,
             single_onnx=single_onnx,
             cpu=cpu,
-            overlap_demucs=overlap_demucs,
-            overlap_VOCFT=overlap_VOCFT,
-            overlap_InstHQ4=overlap_InstHQ4,
-            overlap_VitLarge=overlap_VitLarge,
-            overlap_InstVoc=overlap_InstVoc,
-            overlap_BSRoformer=overlap_BSRoformer,
-            weight_InstVoc=weight_InstVoc,
-            weight_VOCFT=weight_VOCFT,
-            weight_InstHQ4=weight_InstHQ4,
-            weight_VitLarge=weight_VitLarge,
-            weight_BSRoformer=weight_BSRoformer,
-            BigShifts=BigShifts,
+            overlap_demucs=float(overlap_demucs),
+            overlap_VOCFT=float(overlap_VOCFT),
+            overlap_InstHQ4=float(overlap_InstHQ4),
+            overlap_VitLarge=int(overlap_VitLarge),
+            overlap_InstVoc=int(overlap_InstVoc),
+            overlap_BSRoformer=int(overlap_BSRoformer),
+            weight_InstVoc=float(weight_InstVoc),
+            weight_VOCFT=float(weight_VOCFT),
+            weight_InstHQ4=float(weight_InstHQ4),
+            weight_VitLarge=float(weight_VitLarge),
+            weight_BSRoformer=float(weight_BSRoformer),
+            BigShifts=int(BigShifts),
             vocals_only=vocals_only,
             use_BSRoformer=use_BSRoformer,
             BSRoformer_model=BSRoformer_model,
@@ -644,7 +644,7 @@ def main():
     separate_vocals_parser.add_argument('--supress')
     separate_vocals_parser.add_argument('--language')
     #colab options
-    separate_vocals_parser.add_argument('--input_audio', type=str, required=True)
+    separate_vocals_parser.add_argument('--input_file', type=str, required=True)
     separate_vocals_parser.add_argument('--output_folder', type=str, required=True)
     separate_vocals_parser.add_argument('--large_gpu', type=bool, default=False)
     separate_vocals_parser.add_argument('--single_onnx', type=bool, default=False)
@@ -652,9 +652,9 @@ def main():
     separate_vocals_parser.add_argument('--overlap_demucs', type=float, default=0.25)
     separate_vocals_parser.add_argument('--overlap_VOCFT', type=float, default=0.25)
     separate_vocals_parser.add_argument('--overlap_InstHQ4', type=float, default=0.25)
-    separate_vocals_parser.add_argument('--overlap_VitLarge', type=float, default=0.25)
-    separate_vocals_parser.add_argument('--overlap_InstVoc', type=float, default=0.25)
-    separate_vocals_parser.add_argument('--overlap_BSRoformer', type=float, default=0.25)
+    separate_vocals_parser.add_argument('--overlap_VitLarge', type=int, default=0.25)
+    separate_vocals_parser.add_argument('--overlap_InstVoc', type=int, default=0.25)
+    separate_vocals_parser.add_argument('--overlap_BSRoformer', type=int, default=0.25)
     separate_vocals_parser.add_argument('--weight_InstVoc', type=float, default=1.0)
     separate_vocals_parser.add_argument('--weight_VOCFT', type=float, default=1.0)
     separate_vocals_parser.add_argument('--weight_InstHQ4', type=float, default=1.0)
