@@ -17,6 +17,7 @@ Performs the entire AI cover generation process
 
 ## Credits
 - [Ultimate Vocal Remover API](https://github.com/NextAudioGen/ultimatevocalremover_api) by [NextAudioGen](https://github.com/NextAudioGen)
+- [MVSEP-MDX23-Colab_v2 Fork](https://github.com/jarredou/MVSEP-MDX23-Colab_v2) by [Jarredou](https://github.com/jarredou)
 - [Audio Separator](https://github.com/karaokenerds/python-audio-separator) by [Andrew Beveridge](https://github.com/beveradb)
 - [RVC_CLI](https://github.com/blaise-tk/RVC_CLI) by [blaise-tk](https://github.com/blaise-tk)
 - [OrpheusDL](https://github.com/OrfiTeam/OrpheusDL) by [OrfiTeam](https://github.com/OrfiTeam)
