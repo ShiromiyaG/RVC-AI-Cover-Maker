@@ -449,7 +449,7 @@ def reverb(args):
     reverb_width = args.reverb_width
     limiter = args.limiter
     limiter_threshold_db = args.limiter_threshold_db
-    limiter_release_time = args.limiter_release_time
+    limiter_release_ms = args.limiter_release_ms
     compressor = args.compressor
     compressor_ratio = args.compressor_ratio
     compressor_threshold_db = args.compressor_threshold_db
@@ -469,8 +469,7 @@ def reverb(args):
             reverb_width=float(reverb_width),
             limiter=limiter,
             limiter_threshold_db=float(limiter_threshold_db),
-            limiter_release_time=float(limiter_release_time),
-            limiter_ceiling_db=float(limiter_ceiling_db),
+            limiter_release_ms=float(limiter_release_ms),
             compressor=compressor,
             compressor_ratio=float(compressor_ratio),
             compressor_threshold_db=float(compressor_threshold_db),
@@ -669,15 +668,12 @@ def main():
     reverb_parser.add_argument('--reverb_width', type=float)
     reverb_parser.add_argument('--limiter')
     reverb_parser.add_argument('--limiter_threshold_db', type=float)
-    reverb_parser.add_argument('--limiter_release_time', type=float)
-    reverb_parser.add_argument('--limiter_ceiling_db', type=float)
+    reverb_parser.add_argument('--limiter_release_ms', type=float)
     reverb_parser.add_argument('--compressor')
     reverb_parser.add_argument('--compressor_ratio', type=float)
     reverb_parser.add_argument('--compressor_threshold_db', type=float)
     reverb_parser.add_argument('--compressor_attack_ms', type=float)
     reverb_parser.add_argument('--compressor_release_ms', type=float)
-    reverb_parser.add_argument('--compressor_knee_db', type=float)
-    reverb_parser.add_argument('--compressor_makeup_gain_db', type=float)
     reverb_parser.add_argument('--output_path')
     reverb_parser.add_argument('--supress')
     reverb_parser.add_argument('--language')
