@@ -660,7 +660,7 @@ def main():
     separate_vocals_parser.add_argument('--weight_InstHQ4', type=float, default=1.0)
     separate_vocals_parser.add_argument('--weight_VitLarge', type=float, default=1.0)
     separate_vocals_parser.add_argument('--weight_BSRoformer', type=float, default=1.0)
-    separate_vocals_parser.add_argument('--BigShifts', type=bool, default=False)
+    separate_vocals_parser.add_argument('--BigShifts', type=int, default=False)
     separate_vocals_parser.add_argument('--vocals_only', type=bool, default=False)
     separate_vocals_parser.add_argument('--use_BSRoformer', type=bool, default=False)
     separate_vocals_parser.add_argument('--BSRoformer_model', type=str, default=None)
