@@ -40,9 +40,9 @@
                 "https://github.com/TRvlvr/model_repo/releases/download/all_public_uvr_models/UVR_MDXNET_KARA_2.onnx"
             ]
         },
-        "UVR-MDX-NET-Inst_HQ_2":{
+        "UVR-MDX-NET-Inst_HQ_3":{
             "model_path":[
-                "https://github.com/TRvlvr/model_repo/releases/download/all_public_uvr_models/Kim_Vocal_2.onnx"
+                "https://github.com/TRvlvr/model_repo/releases/download/all_public_uvr_models/UVR-MDX-NET-Inst_HQ_3.onnx"
             ]
         },
         "Kim_Inst":{
