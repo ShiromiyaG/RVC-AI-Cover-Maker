@@ -246,7 +246,7 @@ def remove_backing_vocals_and_reverb(args):
     else:
         print(f"{basename} processing with Reverb HQ is over!")
         print("Vocal processing completed.")
-    return get_last_modified_file(output_final_folder)
+    return get_last_modified_file(output_final_folder)'''
 
 def separate_instrumentals(args):
     input_file = args.input_file
@@ -416,7 +416,7 @@ def separate_instrumentals(args):
     if instrumental_ensemble == True:
         get_last_modified_file(final_output_dir)
     else:
-        get_last_modified_file(stage1_dir)'''
+        get_last_modified_file(stage1_dir)
 
 def rvc_ai(args):
     rvc_model_name = args.rvc_model_name
