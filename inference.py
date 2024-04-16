@@ -140,7 +140,7 @@ def remove_backing_vocals_and_reverb(args):
         print("Vocal processing completed.")
     return [output for output in output_folder if "Reverb_HQ" in output]
 
-def separate_vocals(args):
+'''def separate_vocals(args):
     input_file = args.input_file
     vocal_ensemble = args.vocal_ensemble
     algorithm_ensemble_vocals = args.algorithm_ensemble_vocals
@@ -416,7 +416,7 @@ def separate_instrumentals(args):
     if instrumental_ensemble == True:
         get_last_modified_file(final_output_dir)
     else:
-        get_last_modified_file(stage1_dir)
+        get_last_modified_file(stage1_dir)'''
 
 def rvc_ai(args):
     rvc_model_name = args.rvc_model_name
@@ -544,7 +544,7 @@ def ensemble(args):
             is_array=False,
         )
 
-def cpu_mode(args):
+'''def cpu_mode(args):
     input_file = args.input_file
     vocal_ensemble = args.vocal_ensemble
     algorithm_ensemble_vocals = args.algorithm_ensemble_vocals
@@ -606,7 +606,7 @@ def cpu_mode(args):
     else:
         print(f"{basename} processing with Inst_HQ_4 is over!")
     output.append(get_last_modified_file(output_instrumentals))
-    return output
+    return output'''
 
 def main():
     parser = argparse.ArgumentParser(description="CLI")
@@ -636,7 +636,7 @@ def main():
     rbvr_parser.add_argument('--language')
     rbvr_parser.set_defaults(func=remove_backing_vocals_and_reverb)
 
-    separate_vocals_parser = subparsers.add_parser('separate_vocals')
+    '''separate_vocals_parser = subparsers.add_parser('separate_vocals')
     separate_vocals_parser.add_argument('--output_final_folder')
     separate_vocals_parser.add_argument('--no_inst_folder')
     separate_vocals_parser.add_argument('--no_back_folder')
@@ -672,7 +672,7 @@ def main():
     separate_vocals_parser.add_argument('--input_gain', type=float, default=0.0)
     separate_vocals_parser.add_argument('--restore_gain', type=bool, default=False)
     separate_vocals_parser.add_argument('--filter_vocals', type=bool, default=False)
-    separate_vocals_parser.set_defaults(func=separate_vocals)
+    separate_vocals_parser.set_defaults(func=separate_vocals)'''
 
     separate_instrumentals_parser = subparsers.add_parser('separate_instrumentals')
     separate_instrumentals_parser.add_argument('--input_file')
@@ -745,7 +745,7 @@ def main():
     ensemble_parser.add_argument('--language')
     ensemble_parser.set_defaults(func=ensemble)
 
-    cpu_mode_parser = subparsers.add_parser('cpu_mode')
+    '''cpu_mode_parser = subparsers.add_parser('cpu_mode')
     cpu_mode_parser.add_argument('--input_file')
     cpu_mode_parser.add_argument('--vocal_ensemble')
     cpu_mode_parser.add_argument('--algorithm_ensemble_vocals')
@@ -756,7 +756,7 @@ def main():
     cpu_mode_parser.add_argument('--device')
     cpu_mode_parser.add_argument('--supress')
     cpu_mode_parser.add_argument('--language')
-    cpu_mode_parser.set_defaults(func=cpu_mode)
+    cpu_mode_parser.set_defaults(func=cpu_mode)'''
 
     args = parser.parse_args()
     args.func(args)
