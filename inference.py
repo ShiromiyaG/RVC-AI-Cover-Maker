@@ -266,7 +266,7 @@ def separate_instrumentals(args):
     # Pass 1
     if instrumental_ensemble:
         processed_models = []
-        models_names = ["5_HP-Karaoke-UVR.pth", "UVR-MDX-NET-Inst_HQ_4.onnx", "htdemucs.yaml"]
+        models_names = ["5_HP-Karaoke-UVR.pth", "UVR-MDX-NET-Inst_HQ_3.onnx", "htdemucs.yaml"]
         for model_name in models_names:
             if model_name == "5_HP-Karaoke-UVR.pth":
                 with supress_output(supress):
@@ -278,10 +278,10 @@ def separate_instrumentals(args):
                     torch.cuda.empty_cache()
                     processed_models.append(model_name)
                 print(f"{basename} processing with {model_name_without_ext} is over!")
-            if model_name == "UVR-MDX-NET-Inst_HQ_4.onnx":
+            if model_name == "UVR-MDX-NET-Inst_HQ_3.onnx":
                 with supress_output(supress):
                     model_name_without_ext = model_name.split('.')[0]
-                    MDX = models.MDX(name="UVR-MDX-NET-Inst_HQ_4", other_metadata={'segment_size': 256,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
+                    MDX = models.MDX(name="UVR-MDX-NET-Inst_HQ_3", other_metadata={'segment_size': 256,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
                     res = MDX(input_file)
                     instrumentals = res["instrumental"]
                     af.write(f"{stage1_dir}/{basename}_{model_name_without_ext}Instrumental).wav", instrumentals, MDX.sample_rate)
@@ -324,12 +324,12 @@ def separate_instrumentals(args):
         models_names = [model for model in models_names if model not in processed_models]
     else:
         with supress_output(supress):
-            model_name = "UVR-MDX-NET-Inst_HQ_4.onnx"
+            model_name = "UVR-MDX-NET-Inst_HQ_3.onnx"
             model_name_without_ext = model_name.split('.')[0]
-            MDX = models.MDX(name="UVR-MDX-NET-Inst_HQ_4", other_metadata={'segment_size': 256,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
+            MDX = models.MDX(name="UVR-MDX-NET-Inst_HQ_3", other_metadata={'segment_size': 256,'overlap': 0.75,'mdx_batch_size': 8,'semitone_shift': 0,'adjust': 1.08, 'denoise': False,'is_invert_spec': False,'is_match_frequency_pitch': True,'overlap_mdx': None},device=device, logger=None)
             res = MDX(input_file)
             instrumentals = res["instrumental"]
-            af.write(f"{stage1_dir}/{basename}_Inst-HQ4_(instrumental).wav", instrumentals, MDX.sample_rate)
+            af.write(f"{stage1_dir}/{basename}_Inst-HQ3_(instrumental).wav", instrumentals, MDX.sample_rate)
             torch.cuda.empty_cache()
             processed_models.append(model_name)
             final_output_path = os.path.join(stage1_dir, f"{basename}_{model_name_without_ext}.flac")
@@ -359,7 +359,7 @@ def separate_instrumentals(args):
         # Pass 2
         processed_models = []
         pass2_outputs = []
-        models_names = ["karokee_4band_v2_sn.pth", "UVR-MDX-NET-Inst_HQ_4.onnx", "Kim_Vocal_2.onnx"]
+        models_names = ["karokee_4band_v2_sn.pth", "UVR-MDX-NET-Inst_HQ_3.onnx", "Kim_Vocal_2.onnx"]
         for model_name in models_names:
             if model_name == "karokee_4band_v2_sn.pth":
                 with supress_output(supress):
