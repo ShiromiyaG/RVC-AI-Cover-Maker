@@ -3,6 +3,13 @@
 # <a href="https://github.com/ShiromiyaG/RVC-AI-Cover-Maker" target="_blank"><img src="https://github.com/ShiromiyaG/RVC-AI-Cover-Maker/blob/v2/assets/RVC%20AI%20Cover%20Maker-min.png" alt="RVCAICoverMaker"></a>
 Performs the entire AI cover generation process
 
+Simplified Version/ Versão Simplificada
+| **English Version** | **Versão PT-BR** |
+|:---:|:---:|
+| <a target="_blank" href="https://colab.research.google.com/github/ShiromiyaG/RVC-AI-Cover-Maker/blob/v2/RVC_AI_Cover_Maker_Simplified_Version.ipynb"> <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/> </a> | <a target="_blank" href="https://colab.research.google.com/github/ShiromiyaG/RVC-AI-Cover-Maker/blob/v2/RVC_AI_Cover_Maker_Simplified_Version_PT_BR.ipynb"> <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/> </a> |
+
+
+Normal version (Not working)/ Versão Normal (Não funcional)
 | **English Version** | **Versão PT-BR** |
 |:---:|:---:|
 | Full process version <br> <a target="_blank" href="https://colab.research.google.com/github/ShiromiyaG/RVC-AI-Cover-Maker/blob/v2/RVC_AI_Cover_Maker.ipynb"> <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/> </a> <br> Separate parts version <br> <a target="_blank" href="https://colab.research.google.com/github/ShiromiyaG/RVC-AI-Cover-Maker/blob/v2/RVC_AI_Cover_Maker_(separate_parts_version).ipynb"> <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/> </a> | Processo completo <br> <a target="_blank" href="https://colab.research.google.com/github/ShiromiyaG/RVC-AI-Cover-Maker/blob/v2/RVC_AI_Cover_Maker_PT_BR.ipynb"> <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/> </a> <br> Versão com partes separadas <br> <a target="_blank" href="https://colab.research.google.com/github/ShiromiyaG/RVC-AI-Cover-Maker/blob/v2/RVC_AI_Cover_Maker_(separate_parts_version)_PT_BR.ipynb"> <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/> </a> |
