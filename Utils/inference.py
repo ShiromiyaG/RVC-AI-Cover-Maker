@@ -94,7 +94,7 @@ def run_file(model, args, config, device, verbose=False):
         if 'normalize' in config.inference:
             if config.inference['normalize'] is True:
                 estimates = estimates * std + mean
-        file_name, _ = os.path.splitext(os.path.basename(file_path))
+        file_name, _ = os.path.splitext(os.path.basename(args.input_file))
         if args.flac_file:
             output_file = os.path.join(args.store_dir, f"{file_name}_{instr}.flac")
             subtype = 'PCM_16' if args.pcm_type == 'PCM_16' else 'PCM_24'
